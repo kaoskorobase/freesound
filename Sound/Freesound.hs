@@ -88,7 +88,7 @@ type Handle = Curl
 -- Adds an environment (the 'Curl' handle) and error handling to the 'IO'
 -- monad. Actions in the 'Freesound' monad can only be executed by
 -- 'withFreesound', which handles all the initialization and cleanup details.
-newtype Freesound a = Freesound { fromFreesound :: ReaderT Handle (ErrorT Error IO) a }
+newtype Freesound a = Freesound { runFreesound :: ReaderT Handle (ErrorT Error IO) a }
                         deriving (Functor, Monad, MonadError Error, MonadIO, MonadReader Handle)
 
 -- | Make a request using 'Handle' and converting propagating failure codes
@@ -132,7 +132,7 @@ login user password = do
 withFreesound :: String -> String -> Freesound a -> IO (Either Error a)
 withFreesound user password f =
     withCurlDo $ liftIO Curl.initialize >>= runErrorT . runReaderT action
-    where action = fromFreesound (login user password >> f)
+    where action = runFreesound (login user password >> f)
 
 -- | Search the Freesound database.
 search :: Query -> Freesound [Sample]
