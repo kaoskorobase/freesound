@@ -154,10 +154,10 @@ do_download options args =
 
 commands :: [(String, Command)]
 commands = [
-    ("search",     Command searchOptions "freesound search [OPTION...] PREDICATES.." do_search),
-    ("similar",    Command searchOptions "freesound similar [OPTION...] SAMPLE"      do_searchSimilar),
-    ("properties", Command searchOptions "freesound properties [OPTION...] SAMPLE"   do_properties),
-    ("download",   Command searchOptions "freesound download [OPTION...] SAMPLE"     do_download)
+    ("search",     Command searchOptions        "freesound search [OPTION...] PREDICATES.." do_search),
+    ("similar",    Command searchSimilarOptions "freesound similar [OPTION...] SAMPLE"      do_searchSimilar),
+    ("properties", Command propertiesOptions    "freesound properties [OPTION...] SAMPLE"   do_properties),
+    ("download",   Command downloadOptions      "freesound download [OPTION...] SAMPLE"     do_download)
     ]
 
 printHelp :: ExitCode -> String -> [OptDescr (Options -> Options)] -> IO a
