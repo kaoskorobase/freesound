@@ -1,4 +1,5 @@
 -- | Access the freesound database from the command line.
+--
 -- /TODO/:
 --   * flesh out error handling
 --
@@ -153,22 +154,37 @@ do_download options args =
 
 commands :: [(String, Command)]
 commands = [
-    ("search",     Command searchOptions "search [OPTION...] PREDICATES.." do_search),
-    ("similar",    Command searchOptions "similar [OPTION...] SAMPLE"      do_searchSimilar),
-    ("properties", Command searchOptions "properties [OPTION...] SAMPLE"   do_properties),
-    ("download",   Command searchOptions "download [OPTION...] SAMPLE"     do_download)
+    ("search",     Command searchOptions "freesound search [OPTION...] PREDICATES.." do_search),
+    ("similar",    Command searchOptions "freesound similar [OPTION...] SAMPLE"      do_searchSimilar),
+    ("properties", Command searchOptions "freesound properties [OPTION...] SAMPLE"   do_properties),
+    ("download",   Command searchOptions "freesound download [OPTION...] SAMPLE"     do_download)
     ]
 
-parseOptions :: [OptDescr (Options -> Options)] -> [String] -> IO (Options, [String])
-parseOptions options argv = 
-    case getOpt RequireOrder options argv of
+printHelp :: ExitCode -> String -> [OptDescr (Options -> Options)] -> IO a
+printHelp code header options = do
+    hPutStr stderr (usageInfo header options)
+    exitWith code
+
+parseOptions :: String -> [OptDescr (Options -> Options)] -> [String] -> IO (Options, [String])
+parseOptions header options argv = 
+    case getOpt Permute options argv of
         (o, n, []) -> let o' = foldl (flip ($)) defaultOptions o in
                         if o'^.optHelp
-                            then do hPutStr stderr (usageInfo header options)
-                                    exitWith ExitSuccess
+                            then printHelp ExitSuccess header options
                             else return (o', n)
         (_, _, es) -> ioError (userError (concat es ++ usageInfo header options))
-    where header = "Usage: freesound COMMAND [OPTION...] [ARG...]"
+
+globalHelp :: String
+globalHelp = "Usage: freesound COMMAND [OPTION...] [ARG...]\
+              \\n\n\
+              \Try freesound COMMAND --help for individual command options.\
+              \\n\n\
+              \Commands:\n\n\
+              \  search\n\
+              \  similar\n\
+              \  properties\n\
+              \  downloads\n\n\
+              \Global options:\n"
 
 -- | Read username from stdin.
 getUser :: IO String
@@ -187,7 +203,7 @@ getPassword = do
 -- | Read credentials that are still unknown from stdin.
 getCredentials :: Maybe String -> Maybe String -> IO (String, String)
 getCredentials user password = do
-    user' <- maybe getUser return user
+    user'     <- maybe getUser return user
     password' <- maybe getPassword return password
     return (user', password')
 
@@ -201,14 +217,17 @@ doCommand user password action = do
 
 main :: IO ()
 main = do
-    (cmdName:rest) <- getArgs
-    case lookup cmdName commands of
-        Nothing  ->
-            putStrLn ("No such command: " ++ cmdName)
-        Just cmd -> do
-            (options, args) <- parseOptions (globalOptions ++ cmdOptions cmd) rest
-            case cmdAction cmd options args of
-                Left e  -> putStrLn ("ERROR: " ++ e)
-                Right a -> do
-                    (user, password) <- getCredentials (options^.optUser) (options^.optPassword)
-                    doCommand user password a
+    argv <- getArgs
+    case argv of
+        [] -> printHelp (ExitFailure 1) globalHelp globalOptions
+        (cmdName:rest) ->
+            case lookup cmdName commands of
+                Nothing ->
+                    printHelp (ExitFailure 1) globalHelp globalOptions
+                Just cmd -> do
+                    (options, args) <- parseOptions (cmdHelp cmd) (globalOptions ++ cmdOptions cmd) rest
+                    case cmdAction cmd options args of
+                        Left e  -> putStrLn ("ERROR: " ++ e)
+                        Right a -> do
+                            (user, password) <- getCredentials (options^.optUser) (options^.optPassword)
+                            doCommand user password a
