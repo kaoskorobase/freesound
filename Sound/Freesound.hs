@@ -36,7 +36,7 @@ import qualified Sound.Freesound.Query              as Query
 import Sound.Freesound.Sample                       (Sample(..))
 import qualified Sound.Freesound.Sample             as Sample
 import qualified Sound.Freesound.URL                as URL
-import Sound.Freesound.Util                         (readMaybe)
+import Sound.Freesound.Util                         (findString, readMaybe)
 
 mkURL :: String -> URLString
 mkURL page = baseURL ++ "/" ++ page
@@ -64,6 +64,7 @@ defaultCurlOptions = [
 data Error =
       Error String
     | CurlError CurlCode
+    | LoginError
     | XMLError
     | UnknownError
     deriving (Show)
@@ -112,8 +113,11 @@ requestXML url options = do
 login :: String -> String -> Freesound ()
 login user password = do
     resp <- request loginURL opts
-    -- TODO: check for login success (duh)
-    return ()
+    -- Check for login success (duh!)
+    -- TODO: Figure out a better way
+    case findString "logged" (respBody resp) of
+        Nothing -> throwError LoginError
+        _       -> return ()
     where
         post = URL.postFields [
                 ("username", user),

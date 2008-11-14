@@ -3,10 +3,20 @@ module Sound.Freesound.Util (
     findAttr,
     findChild,
     findChildren,
-    strContent
+    strContent,
+    findString
 ) where
 
+import Data.List                (isPrefixOf)
 import qualified Text.XML.Light as XML
+
+-- | Find substring.
+findString :: String -> String -> Maybe String
+findString "" xs        = Just xs
+findString a  ""        = Nothing
+findString a xs
+    | isPrefixOf a xs   = Just xs
+findString a (_:xs)     = findString a xs
 
 -- | Read a value from a 'String', returning 'Nothing' when the parse fails.
 readMaybe :: (Read a) => String -> Maybe a
@@ -29,3 +39,4 @@ findChildren name = XML.findChildren (XML.unqual name)
 -- | Return the string content of an 'XML.Element' in the 'Maybe' monad.
 strContent :: XML.Element -> Maybe String
 strContent = return . XML.strContent
+
