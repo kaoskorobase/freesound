@@ -1,13 +1,13 @@
 name:               freesound
 version:            0.0.1
 synopsis:           Access the Freesound Project database
-description:        Access the Freesound Project database
+description:        Access the Freesound Project database. The Freesound
+                    Project is a collaborative database of Creative Commons
+                    licensed sounds.
                     .
-                    The Freesound Project [1] is a collaborative database of
-                    Creative Commons [2] licensed sounds.
+                    <http://www.freesound.org/>
                     .
-                    [1] http://www.freesound.org/
-                    [2] http://www.creativecommons.org/
+                    <http://www.creativecommons.org/>
 license:            BSD3
 license-file:       LICENSE
 category:           Sound, Web
