@@ -139,8 +139,8 @@ search query = Sample.listFromXML `fmap` requestXML searchURL opts
 data Similarity = Similar | Dissimilar deriving (Eq, Show)
 
 -- | Search samples similar (or dissimilar) to a 'Sample'.
-searchSimilar :: Sample -> Similarity -> Freesound [Sample]
-searchSimilar sample similarity = Sample.listFromXML `fmap` requestXML url []
+searchSimilar :: Similarity -> Sample -> Freesound [Sample]
+searchSimilar similarity sample = Sample.listFromXML `fmap` requestXML url []
     where
         url = URL.addParams params searchSimilarURL
         params = [ ("id", show (sampleId sample)),
