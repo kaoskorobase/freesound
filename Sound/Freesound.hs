@@ -1,9 +1,18 @@
+-- | This module provides access to the Freesound Project, a database of
+-- Creative Commons licensed sounds.
+--
+-- * <http://www.freesound.org/>
+--
+-- * <http://www.creativecommons.org/>
 module Sound.Freesound (
-    Error(..), errorString,
-    Sample(..),
+    -- * The Freesound monad
     Freesound,
     withFreesound,
-    -- | API methods
+    -- * Error handling
+    Error(..), errorString,
+    -- * Sample handles
+    Sample(..),
+    -- * API methods
     search,
     searchSimilar,
     propertiesXML, properties,
