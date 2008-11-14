@@ -14,7 +14,7 @@ module Sound.Freesound (
     Sample(..),
     -- * API methods
     search,
-    searchSimilar,
+    Similarity(..), searchSimilar,
     propertiesXML, properties,
     download
 ) where
