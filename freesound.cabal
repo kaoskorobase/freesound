@@ -22,9 +22,9 @@ cabal-version:      >= 1.2
 
 library
   exposed-modules:  Sound.Freesound
-  other-modules:    Sound.Freesound.Properties
+                    Sound.Freesound.Properties
                     Sound.Freesound.Query
-                    Sound.Freesound.URL
+  other-modules:    Sound.Freesound.URL
                     Sound.Freesound.Util
   build-depends:    base >= 3,
                     curl == 1.3.*,
