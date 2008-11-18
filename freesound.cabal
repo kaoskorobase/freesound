@@ -24,6 +24,7 @@ library
   exposed-modules:  Sound.Freesound
                     Sound.Freesound.Properties
                     Sound.Freesound.Query
+                    Sound.Freesound.Sample
   other-modules:    Sound.Freesound.URL
                     Sound.Freesound.Util
   build-depends:    base >= 3,
