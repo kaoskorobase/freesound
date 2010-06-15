@@ -168,7 +168,7 @@ properties sample = do
         Just p  -> return p
         Nothing -> throwError $ Error ("Properties for sample " ++ (show $ sampleId sample) ++ " not found")
 
--- | Download a 'Sample' as a 'ByteString'.
-download :: Sample -> Freesound BS.ByteString
+-- | Download a 'Sample' as an instance of 'CurlBuffer'.
+download :: CurlBuffer b => Sample -> Freesound b
 download sample = respBody `fmap` request url []
     where url = URL.addParams [("id", show (sampleId sample))] audioURL
