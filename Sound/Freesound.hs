@@ -19,6 +19,7 @@ module Sound.Freesound (
     download
 ) where
 
+import qualified Data.ByteString.Lazy as BS
 import Data.List                                    (find, intercalate, stripPrefix)
 import Data.Maybe                                   (listToMaybe, mapMaybe)
 import Network.Curl
@@ -82,6 +83,7 @@ errorString e             = show e
 
 -- | Curl handle.
 type Handle = Curl
+type Response b = CurlResponse_ [(String, String)] b
 
 -- | The 'Freesound' monad.
 
@@ -93,10 +95,10 @@ newtype Freesound a = Freesound { runFreesound :: ReaderT Handle (ErrorT Error I
 
 -- | Make a request using 'Handle' and converting propagating failure codes
 -- to the ErrorT monad.
-request :: URLString -> [CurlOption] -> Freesound CurlResponse
+request :: CurlBuffer b => URLString -> [CurlOption] -> Freesound (Response b)
 request url options = do
     curl <- ask
-    resp <- liftIO $ do_curl curl url (defaultCurlOptions ++ options)
+    resp <- liftIO $ do_curl_ curl url (defaultCurlOptions ++ options)
     case respCurlCode resp of
         CurlOK -> return resp
         code   -> throwError (CurlError code)
@@ -104,7 +106,7 @@ request url options = do
 -- | Make a request and parse the returned XML data.
 requestXML :: URLString -> [CurlOption] -> Freesound XML.Element
 requestXML url options = do
-    resp <- request url options
+    resp <- request url options :: Freesound (Response BS.ByteString)
     case XML.parseXMLDoc (respBody resp) of
         Nothing  -> throwError XMLError
         Just xml -> return xml
@@ -166,7 +168,7 @@ properties sample = do
         Just p  -> return p
         Nothing -> throwError $ Error ("Properties for sample " ++ (show $ sampleId sample) ++ " not found")
 
--- | Download a 'Sample' as a 'String'.
-download :: Sample -> Freesound String
+-- | Download a 'Sample' as a 'ByteString'.
+download :: Sample -> Freesound BS.ByteString
 download sample = respBody `fmap` request url []
     where url = URL.addParams [("id", show (sampleId sample))] audioURL

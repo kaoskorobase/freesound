@@ -3,20 +3,23 @@
 -- /TODO/:
 --   * flesh out error handling
 --
-import Control.Monad.Trans      (liftIO)
-import Sound.Freesound
-import Sound.Freesound.Query
-import Sound.Freesound.Util
-import System.IO                (hGetLine, hGetEcho, hSetEcho, stdin)
-import Text.XML.Light           as XML
-import System.Console.GetOpt
 
-import Data.Accessor.Template
-import Data.Accessor
+import qualified Data.ByteString.Lazy as BS
+import           Control.Monad.Trans (liftIO)
+import           Sound.Freesound
+import qualified Sound.Freesound.Properties as Props
+import           Sound.Freesound.Query
+import           Sound.Freesound.Util
+import           System.IO (hGetLine, hGetEcho, hSetEcho, stdin)
+import           Text.XML.Light as XML
+import           System.Console.GetOpt
 
-import System.Exit
-import System.IO
-import System.Environment (getArgs)
+import           Data.Accessor.Template
+import           Data.Accessor
+
+import           System.Exit
+import           System.IO
+import           System.Environment (getArgs)
 
 data Options = Options
   { optHelp_            :: Bool
@@ -37,11 +40,13 @@ data SearchSimilarOptions = SearchSimilarOptions
   } deriving (Eq, Show)
 
 data PropertiesOptions = PropertiesOptions
-  { optXML_      :: Bool
+  { optXML_ :: Bool
   } deriving (Eq, Show)
 
 data DownloadOptions = DownloadOptions
-  { optOutputFile_ :: Maybe FilePath
+  { optOutputFile_          :: Maybe FilePath
+  , optAddExtension_        :: Bool
+  , optUseOriginalFileName_ :: Bool
   } deriving (Eq, Show)
 
 $( deriveAccessors ''Options )
@@ -69,21 +74,23 @@ defaultOptions = Options
     optSimilarity_   = Similar }
   , optProperties_ = PropertiesOptions {
     optXML_      = False }
-  , optDownload_ = DownloadOptions {
-    optOutputFile_ = Nothing }
+  , optDownload_ = DownloadOptions
+        { optOutputFile_ = Nothing
+        , optAddExtension_ = False
+        , optUseOriginalFileName_ = False }
   }
 
 globalOptions :: [OptDescr (Options -> Options)]
 globalOptions =
-    [   Option ['h'] ["help"]
-            (NoArg (optHelp ^= True))
-            "Print this help message."
-        ,Option ['u'] ["user"]
-            (ReqArg (\x -> optUser ^= Just x) "STRING")
-            "Freesound user name."
-        ,Option ['p'] ["password"]
-            (ReqArg (\x -> optPassword ^= Just x) "STRING")
-            "Freesound password."
+    [ Option ['h'] ["help"]
+        (NoArg (optHelp ^= True))
+        "Print this help message."
+    , Option ['u'] ["user"]
+        (ReqArg (\x -> optUser ^= Just x) "STRING")
+        "Freesound user name."
+    , Option ['p'] ["password"]
+        (ReqArg (\x -> optPassword ^= Just x) "STRING")
+        "Freesound password."
     ]
 
 searchOptions :: [OptDescr (Options -> Options)]
@@ -91,23 +98,29 @@ searchOptions = [ ]
 
 searchSimilarOptions :: [OptDescr (Options -> Options)]
 searchSimilarOptions =
-    [   Option [] ["dissimilar"]
-            (NoArg (optSearchSimilar ^: optSimilarity ^= Dissimilar))
-            "Dissimilar"
+    [ Option [] ["dissimilar"]
+        (NoArg (optSearchSimilar ^: optSimilarity ^= Dissimilar))
+        "Dissimilar"
     ]
 
 propertiesOptions :: [OptDescr (Options -> Options)]
 propertiesOptions =
-    [   Option [] ["xml"]
-            (NoArg (optProperties ^: optXML ^= True))
-            "List xml"
+    [ Option [] ["xml"]
+        (NoArg (optProperties ^: optXML ^= True))
+        "List xml"
     ]
 
 downloadOptions :: [OptDescr (Options -> Options)]
 downloadOptions =
-    [   Option ['o'] ["output-file"]
-            (ReqArg (\x -> optDownload ^: optOutputFile ^= Just x) "PATH")
-            "Output file"
+    [ Option ['o'] ["output-file"]
+        (ReqArg (\x -> optDownload ^: optOutputFile ^= Just x) "PATH")
+        "Output file name (overrides --use-original-filename)"
+    , Option ['e'] ["add-extension"]
+        (NoArg (optDownload ^: optAddExtension ^= True))
+        "Add original extension to output file"
+    , Option ['O'] ["use-original-filename"]
+        (NoArg (optDownload ^: optUseOriginalFileName ^= True))
+        "Use original file name for output"
     ]
 
 -- Utilities
@@ -146,11 +159,15 @@ do_download :: Options -> [String] -> Result
 do_download options args =
     case readSample args of
         Left e  -> Left e
-        Right s -> Right $ download s >>= fout
-    where
-        fout = case options^.optDownload^.optOutputFile of
-                Nothing   -> liftIO . putStrLn
-                Just path -> liftIO . writeFile path
+        Right s -> Right $ do
+            path <- if options^.optDownload^.optUseOriginalFileName
+                    then properties s >>= return . Just . Props.originalFileName
+                    else case options^.optDownload^.optOutputFile of
+                        Nothing -> return Nothing
+                        Just p -> if options^.optDownload^.optAddExtension
+                                  then properties s >>= return . Just . (\props -> p ++ "." ++ Props.extension props)
+                                  else return (Just p)
+            download s >>= maybe (liftIO . BS.putStrLn) (\p -> liftIO . BS.writeFile p) path
 
 commands :: [(String, Command)]
 commands = [
