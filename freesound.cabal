@@ -1,5 +1,5 @@
 name:               freesound
-version:            0.0.2
+version:            0.1.0
 synopsis:           Access the Freesound Project database
 description:        Access the Freesound Project database. The Freesound
                     Project is a collaborative database of Creative Commons
@@ -11,12 +11,12 @@ description:        Access the Freesound Project database. The Freesound
 license:            BSD3
 license-file:       LICENSE
 category:           Sound, Web
-copyright:          Copyright (c) Stefan Kersten 2008
+copyright:          Copyright (c) Stefan Kersten 2008-2010
 author:             Stefan Kersten
 maintainer:         Stefan Kersten
 stability:          provisional
 homepage:           http://code.haskell.org/~StefanKersten/code/freesound
-tested-with:        GHC == 6.10.1
+tested-with:        GHC == 6.10.1, GHC == 6.10.4, GHC == 6.12.1
 build-type:         Simple
 cabal-version:      >= 1.2
 
