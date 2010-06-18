@@ -14,7 +14,7 @@ category:           Sound, Web
 copyright:          Copyright (c) Stefan Kersten 2008-2010
 author:             Stefan Kersten
 maintainer:         Stefan Kersten
-stability:          provisional
+stability:          experimental
 homepage:           http://code.haskell.org/~StefanKersten/code/freesound
 tested-with:        GHC == 6.10.1, GHC == 6.10.4, GHC == 6.12.1
 build-type:         Simple
