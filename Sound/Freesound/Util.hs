@@ -26,17 +26,16 @@ readMaybe s = case reads s of
 
 -- | Find an attribute of an 'XML.Element'.
 findAttr :: String -> XML.Element -> Maybe String
-findAttr name = XML.findAttr (XML.unqual name)
+findAttr = XML.findAttr . XML.unqual
 
 -- | Find a child element of an 'XML.Element'.
 findChild :: String -> XML.Element -> Maybe XML.Element
-findChild name = XML.findChild (XML.unqual name)
+findChild = XML.findChild . XML.unqual
 
 -- | Find all child elements of an 'XML.Element'.
 findChildren :: String -> XML.Element -> [XML.Element]
-findChildren name = XML.findChildren (XML.unqual name)
+findChildren = XML.findChildren . XML.unqual
 
 -- | Return the string content of an 'XML.Element' in the 'Maybe' monad.
 strContent :: XML.Element -> Maybe String
 strContent = return . XML.strContent
-
