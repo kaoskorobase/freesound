@@ -88,15 +88,12 @@ type Handle = Curl
 type Response b = CurlResponse_ [(String, String)] b
 
 -- | The 'Freesound' monad.
-
--- Adds an environment (the 'Curl' handle) and error handling to the 'IO'
--- monad. Actions in the 'Freesound' monad can only be executed by
--- 'withFreesound', which handles all the initialization and cleanup details.
+--
+-- Adds an environment (the 'Curl' handle) and error handling to the 'IO' monad. Actions in the 'Freesound' monad may only be executed by 'withFreesound', which handles all the initialization and cleanup details.
 newtype Freesound a = Freesound { runFreesound :: ReaderT Handle (ErrorT Error IO) a }
                         deriving (Functor, Monad, MonadError Error, MonadIO, MonadReader Handle)
 
--- | Make a request using 'Handle' and converting propagating failure codes
--- to the ErrorT monad.
+-- | Make a request using 'Handle' and converting propagating failure codes to the ErrorT monad.
 request :: CurlBuffer b => URLString -> [CurlOption] -> Freesound (Response b)
 request url options = do
     curl <- ask
@@ -113,7 +110,7 @@ requestXML url options = do
         Nothing  -> throwError XMLError
         Just xml -> return xml
 
--- | Log into freesound.
+-- | Log into freesound with a user name and password.
 login :: String -> String -> Freesound ()
 login user password = do
     resp <- request loginURL opts
@@ -132,7 +129,7 @@ login user password = do
                  -- CurlCookieJar cookieFile,
                  CurlFollowLocation True ]
 
--- | Log into Freesound with and perform an action in the 'Freesound' monad.
+-- | Log into Freesound with a user name and password and perform an action in the 'Freesound' monad.
 withFreesound :: String -> String -> Freesound a -> IO (Either Error a)
 withFreesound user password f =
     withCurlDo $ liftIO Curl.initialize >>= runErrorT . runReaderT action
