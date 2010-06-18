@@ -36,10 +36,6 @@ library
                   , mtl >= 1.1
                   , xml >= 1.3 && < 1.4
 
-  extensions:       GeneralizedNewtypeDeriving
-
 executable freesound
   hs-source-dirs:   ., freesound
   main-is:          Main.hs
-  extensions:       GeneralizedNewtypeDeriving,
-                    TemplateHaskell

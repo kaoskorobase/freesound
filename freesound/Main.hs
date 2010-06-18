@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 -- | Access the freesound database from the command line.
 --
 -- /TODO/:

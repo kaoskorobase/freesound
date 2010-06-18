@@ -1,3 +1,5 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 -- | This module provides access to the Freesound Project, a database of
 -- Creative Commons licensed sounds.
 --
