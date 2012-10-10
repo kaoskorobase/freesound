@@ -8,17 +8,22 @@
 -- * <http://www.creativecommons.org/>
 module Sound.Freesound (
     -- * The Freesound monad
-    Freesound,
-    withFreesound,
+    Freesound
+  , Response
+  , request
+  , withFreesound
     -- * Error handling
-    Error(..), errorString,
+  , Error(..)
+  , errorString
     -- * Sample handles
-    Sample(..),
+  , Sample(..)
     -- * API methods
-    search,
-    Similarity(..), searchSimilar,
-    propertiesXML, properties,
-    download
+  , search
+  , Similarity(..)
+  , searchSimilar
+  , propertiesXML
+  , properties
+  , download
 ) where
 
 import qualified Data.ByteString.Lazy as BS
