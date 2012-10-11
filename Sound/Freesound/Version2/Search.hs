@@ -27,7 +27,7 @@ data Request = Request {
   , sort    :: Maybe Sorting
 } deriving (Eq, Show)
 
-data SearchResponse = SearchResponse {
+data Response = Response {
     sounds   :: [Properties]
   , previous :: URL
   , next     :: URL
