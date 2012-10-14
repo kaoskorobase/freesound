@@ -18,8 +18,10 @@ apiKey = T.pack "9a585b9eb66b4e84b405f50e4a8185a1"
 printit :: Maybe Sounds -> IO ()
 printit x = putStrLn $ "Response: " ++ show x
 
+httpRequest _ = simpleHttp . show
+
 main :: IO ()
-main = withFreesound apiKey $ do
+main = withFreesound httpRequest apiKey $ do
 	let q = include "drum" & include "bass" & exclude "loop"
 	u <- searchURI q (F.username "Dolfeus") Nothing
 	liftIO $ putStrLn $ "Request: " ++ show u

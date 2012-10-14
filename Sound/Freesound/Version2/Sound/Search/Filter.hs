@@ -116,7 +116,6 @@ mkF :: ToQueryString a => String -> a -> String
 mkF t x = t ++ ":" ++ toQueryString x
 
 instance ToQueryString Filter where
-  --toQueryString f = ""
   toQueryString filterSpec =
     case filterSpec of
       F_id x -> mkF "id" x
