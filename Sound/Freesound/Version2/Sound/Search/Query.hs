@@ -15,7 +15,7 @@ import 			 Sound.Freesound.URI (ToQueryString(..))
 newtype Query = Query [Term] deriving (Eq, Show)
 
 instance ToQueryString Query where
-	toQueryString (Query ts) = Text.unwords (map f ts)
+	toQueryString (Query ts) = toQueryString $ Text.unwords (map f ts)
 		where
 			quote t
 				| Text.any isSpace t = Text.cons '"' (Text.snoc t '"')

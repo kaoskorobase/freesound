@@ -1,12 +1,13 @@
 module Sound.Freesound.Version2.User (
-    Info(..)
+    Summary(..)
+  , User(..)
 ) where
 
 import Data.Text (Text)
 import Network.URI (URI)
 
 -- | User of the Freesound database.
-data Info = Info {
+data Summary = Summary {
     username :: String  -- | The user’s username.
   , ref  :: URI 		-- | The URI for this resource.
   , url :: URI 			-- | The profile page for the user on the Freesound website.
