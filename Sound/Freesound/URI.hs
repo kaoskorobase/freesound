@@ -17,7 +17,11 @@ import qualified Control.Monad.Trans.Class as R
 import qualified Control.Monad.Trans.Reader as R
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Aeson as J
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
+import           Data.Conduit (Source)
+import qualified Data.Conduit as C
+import qualified Data.Conduit.List as CL
 import qualified Data.List as L
 import           Data.Maybe (fromJust)
 import           Data.Text (Text)
@@ -65,9 +69,11 @@ parseURI' = URI.parseURI . URI.escapeURIString URI.isAllowedInURI
 -- | Download the data referred to by a URI.
 getURI :: Monad m => URI -> FreesoundT m BL.ByteString
 getURI u = do
-  f <- FreesoundT $ R.asks request
+  f <- FreesoundT $ R.asks httpRequest
   u' <- fromURI u
-  FreesoundT $ R.lift $ f HTTP.methodGet u'
+  s <- FreesoundT $ R.lift $ f HTTP.methodGet u' Nothing
+  bs <- FreesoundT $ R.lift $ s C.$$+- CL.consume
+  return $ BL.fromChunks bs
 
 newtype Resource a = Resource { resourceURI :: URI } deriving (Eq)
 
@@ -96,15 +102,17 @@ getData = getURI . dataURI
 
 type APIKey = Text
 
+type HTTPRequest m = HTTP.Method -> URI -> Maybe (C.Source m B.ByteString) -> m (C.ResumableSource m B.ByteString)
+
 data Env m = Env {
-  request :: HTTP.Method -> URI -> m BL.ByteString
+  httpRequest :: HTTPRequest m
 , apiKey :: APIKey
 }
 
 newtype FreesoundT m a = FreesoundT { unFreesoundT :: R.ReaderT (Env m) m a }
                             deriving (Functor, Monad, MonadIO)
 
-withFreesound :: (HTTP.Method -> URI -> m BL.ByteString) -> APIKey -> FreesoundT m a -> m a
+withFreesound :: HTTPRequest m -> APIKey -> FreesoundT m a -> m a
 withFreesound mkRequest apiKey = flip R.runReaderT (Env mkRequest apiKey) . unFreesoundT
 
 -- | Construct an API request URI from an existing URI.
