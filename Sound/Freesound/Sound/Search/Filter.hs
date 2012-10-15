@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Sound.Freesound.Version2.Sound.Search.Filter (
+module Sound.Freesound.Sound.Search.Filter (
   Numerical
 , equals
 , between
@@ -39,7 +39,7 @@ import qualified Data.Time.Clock as Time
 import qualified Data.Time.Format as Time
 import           Prelude hiding (id)
 import           Sound.Freesound.URI (ToQueryString(..))
-import           Sound.Freesound.Version2.Sound (FileType, SoundId, toInt)
+import           Sound.Freesound.Sound (FileType, SoundId, toInt)
 import qualified System.Locale as Time
 
 data License = Attribution | AttributionNoncommercial | CreativeCommons0 deriving (Eq, Show)

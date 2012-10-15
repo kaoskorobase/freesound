@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Sound.Freesound.Version2.Sound (
+module Sound.Freesound.Sound (
     SoundId
   , toInt
   --, fromInt

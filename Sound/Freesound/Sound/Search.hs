@@ -1,11 +1,11 @@
-module Sound.Freesound.Version2.Sound.Search (
+module Sound.Freesound.Sound.Search (
     SortMethod(..)
   , SortDirection(..)
   , Sorting(..)
   --, toURL
   , searchURI
   , search
-  , module Sound.Freesound.Version2.Sound.Search.Query
+  , module Sound.Freesound.Sound.Search.Query
   , Filters
 ) where
 
@@ -18,10 +18,10 @@ import qualified Network.URI as URI
 --import           Sound.Freesound (Freesound, Response)
 --import qualified Sound.Freesound as Freesound
 import           Sound.Freesound.URI
-import           Sound.Freesound.Version2.Sound (Sounds)
-import qualified Sound.Freesound.Version2.Sound as Sound
-import           Sound.Freesound.Version2.Sound.Search.Filter (Filters)
-import           Sound.Freesound.Version2.Sound.Search.Query (Query, ToQueryString(..), include, exclude, (&))
+import           Sound.Freesound.Sound (Sounds)
+import qualified Sound.Freesound.Sound as Sound
+import           Sound.Freesound.Sound.Search.Filter (Filters)
+import           Sound.Freesound.Sound.Search.Query (Query, ToQueryString(..), include, exclude, (&))
 
 data SortMethod    = Duration | Created | Downloads | Rating deriving (Eq, Show)
 data SortDirection = Ascending | Descending deriving (Eq, Show)

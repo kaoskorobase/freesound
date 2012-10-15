@@ -1,4 +1,4 @@
-module Sound.Freesound.Version2.Sound.Search.Query (
+module Sound.Freesound.Sound.Search.Query (
 	ToQueryString(..)
   , Query
   , include

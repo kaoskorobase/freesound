@@ -7,7 +7,6 @@ import qualified Control.Monad.Trans.Class as R
 import qualified Control.Monad.Trans.Control as R
 import qualified Control.Monad.Trans.Reader as R
 import qualified Data.Aeson as J
-import qualified Data.Attoparsec.ByteString.Lazy as A
 import qualified Data.ByteString as B
 import qualified Data.Conduit as C
 import           Data.Monoid (mempty)
@@ -16,9 +15,9 @@ import           Network.URI (URI)
 import qualified Network.HTTP.Conduit as HTTP
 import qualified Network.HTTP.Types as HTTP
 import qualified Data.ByteString.Lazy as L
-import           Sound.Freesound.Version2.Sound.Search
-import           Sound.Freesound.Version2.Sound
-import qualified Sound.Freesound.Version2.Sound.Search.Filter as F
+import           Sound.Freesound.Sound.Search
+import           Sound.Freesound.Sound
+import qualified Sound.Freesound.Sound.Search.Filter as F
 import 			 Sound.Freesound.URI
 
 apiKey = T.pack "9a585b9eb66b4e84b405f50e4a8185a1"

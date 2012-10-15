@@ -1,5 +1,5 @@
 name:               freesound
-version:            0.1.0
+version:            0.2.0
 synopsis:           Access the Freesound Project database
 description:        Access the Freesound Project database. The Freesound
                     Project is a collaborative database of Creative Commons
@@ -11,31 +11,37 @@ description:        Access the Freesound Project database. The Freesound
 license:            BSD3
 license-file:       LICENSE
 category:           Sound, Web
-copyright:          Copyright (c) Stefan Kersten 2008-2010
-author:             Stefan Kersten
-maintainer:         Stefan Kersten
+copyright:          Copyright (c) Stefan Kersten 2008-2012
+author:             Stefan Kersten <sk@k-hornz.de>
+maintainer:         Stefan Kersten <sk@k-hornz.de>
 stability:          experimental
-homepage:           http://code.haskell.org/~StefanKersten/code/freesound
+homepage:           https://github.com/kaoskorobase/freesound
 tested-with:        GHC == 6.10.1, GHC == 6.10.4, GHC == 6.12.1
 build-type:         Simple
 cabal-version:      >= 1.2
 
 library
-  exposed-modules:  Sound.Freesound
-                    Sound.Freesound.Properties
-                    Sound.Freesound.Query
-                    Sound.Freesound.Sample
-  other-modules:    Sound.Freesound.URL
-                    Sound.Freesound.Util
+  exposed-modules:  Sound.Freesound.Conduit
+                    Sound.Freesound.Sound
+                    Sound.Freesound.Sound.Search
+                    Sound.Freesound.Sound.Search.Filter
+                    Sound.Freesound.Sound.Search.Query
+  other-modules:    Sound.Freesound.URI
   build-depends:    base >= 3 && < 5
+                  , aeson >= 0.6 && < 0.7
+                  , bytestring >= 0.9 && < 1.0
+                  , conduit >= 0.5 && < 0.6
+                  , failure >= 0.2 && < 0.3
+                  , filepath >= 1.2 && < 1.3
                   , http-conduit >= 1.6 && < 1.7
-                  -- , bytestring >= 0.9 && < 1.0
-                  -- , curl >= 1.3 && < 1.4
-                  -- , fclabels >= 0.4 && < 0.5
-                  -- , directory >= 1
-                  -- , mtl >= 1.1
-                  -- , xml >= 1.3 && < 1.4
+                  , http-types >= 0.7 && < 0.8
+                  , monad-control >= 0.3 && < 0.4
+                  , network >= 2.4 && < 2.5
+                  , old-locale >= 1.0 && < 1.1
+                  , text >= 0.11 && < 0.12
+                  , time >= 1.2 && < 1.3
+                  , transformers >= 0.3 && < 0.4
 
-executable freesound
-  hs-source-dirs:   ., freesound
-  main-is:          Main.hs
+-- executable freesound
+--   hs-source-dirs:   ., freesound
+--   main-is:          Main.hs
