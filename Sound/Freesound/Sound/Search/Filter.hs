@@ -33,39 +33,42 @@ module Sound.Freesound.Sound.Search.Filter (
 ) where
 
 import           Data.Monoid (Monoid(..))
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString.Char8 as BS
+import           Data.Maybe (mapMaybe)
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Time.Clock as Time
 import qualified Data.Time.Format as Time
+import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
-import           Sound.Freesound.URI (ToQueryString(..))
-import           Sound.Freesound.Sound (FileType, SoundId, toInt)
+import           Sound.Freesound.Types (FileType, SoundId, toInt)
 import qualified System.Locale as Time
 
 data License = Attribution | AttributionNoncommercial | CreativeCommons0 deriving (Eq, Show)
 
-instance ToQueryString License where
-  toQueryString Attribution = "Attribution"
-  toQueryString AttributionNoncommercial = "Attribution Noncommercial"
-  toQueryString CreativeCommons0 = "Creative Commons 0"
+instance QueryValueLike License where
+  toQueryValue Attribution              = toQueryValue $ BS.pack "Attribution"
+  toQueryValue AttributionNoncommercial = toQueryValue $ BS.pack "Attribution Noncommercial"
+  toQueryValue CreativeCommons0         = toQueryValue $ BS.pack "Creative Commons 0"
 
 -- | Numerical constraint.
 data Numerical a = Equals a | Between a a | GreaterThan a | LessThan a deriving (Eq, Show)
 
-class ToNumericalString a where
-  toNumericalString :: a -> String
+class NumericalQueryValue a where
+  toNumericalQueryValue :: a -> ByteString
 
-instance ToNumericalString Double where
-  toNumericalString = show
+instance NumericalQueryValue Double where
+  toNumericalQueryValue = BS.pack . show
 
-instance ToNumericalString Integer where
-  toNumericalString = show
+instance NumericalQueryValue Integer where
+  toNumericalQueryValue = BS.pack . show
 
-instance ToNumericalString SoundId where
-  toNumericalString = show . toInt
+instance NumericalQueryValue SoundId where
+  toNumericalQueryValue = BS.pack . show . toInt
 
-instance ToNumericalString Time.UTCTime where
-  toNumericalString = Time.formatTime Time.defaultTimeLocale "%FT%H:%M:%S%QZ"
+instance NumericalQueryValue Time.UTCTime where
+  toNumericalQueryValue = BS.pack . Time.formatTime Time.defaultTimeLocale "%FT%H:%M:%S%QZ"
 
 equals :: a -> Numerical a
 equals = Equals
@@ -81,14 +84,14 @@ greaterThan = GreaterThan
 lessThan :: a -> Numerical a
 lessThan = LessThan
 
-wrap :: String -> String -> String
-wrap a b = unwords [ "[", a, "TO", b, "]" ]
+wrap :: ByteString -> ByteString -> ByteString
+wrap a b = BS.unwords [ "[", a, "TO", b, "]" ]
 
-instance (ToNumericalString a) => ToQueryString (Numerical a) where
-  toQueryString (Equals a) = toNumericalString a
-  toQueryString (Between a b) = wrap (toNumericalString a) (toNumericalString b)
-  toQueryString (GreaterThan a) = wrap (toNumericalString a) "*"
-  toQueryString (LessThan a) = wrap "*" (toNumericalString a)
+instance (NumericalQueryValue a) => QueryValueLike (Numerical a) where
+  toQueryValue (Equals a)      = toQueryValue $ toNumericalQueryValue a
+  toQueryValue (Between a b)   = toQueryValue $ wrap (toNumericalQueryValue a) (toNumericalQueryValue b)
+  toQueryValue (GreaterThan a) = toQueryValue $ wrap (toNumericalQueryValue a) "*"
+  toQueryValue (LessThan a)    = toQueryValue $ wrap "*" (toNumericalQueryValue a)
 
 data Filter =
 	  F_id (Numerical SoundId)	-- integer, sound id on freesound
@@ -118,11 +121,11 @@ data Filter =
   | F_comments (Numerical Integer) -- number of comments
   deriving (Eq, Show)
 
-mkF :: ToQueryString a => String -> a -> String
-mkF t x = t ++ ":" ++ toQueryString x
+mkF :: QueryValueLike a => ByteString -> a -> Maybe ByteString
+mkF t = fmap (BS.append (BS.append t ":")) . toQueryValue
 
-instance ToQueryString Filter where
-  toQueryString filterSpec =
+instance QueryValueLike Filter where
+  toQueryValue filterSpec =
     case filterSpec of
       F_id x -> mkF "id" x
       F_username x -> mkF "username" x
@@ -156,8 +159,9 @@ instance Monoid Filters where
   mempty = Filters []
   mappend (Filters a) (Filters b) = Filters (a++b)
 
-instance ToQueryString Filters where
-  toQueryString (Filters fs) = unwords (map toQueryString fs)
+instance QueryValueLike Filters where
+  toQueryValue (Filters [])  = Nothing
+  toQueryValue (Filters fs) = Just $ BS.unwords $ mapMaybe toQueryValue fs
 
 fromFilter :: Filter -> Filters
 fromFilter = Filters . (:[])

@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Sound.Freesound.Sound (
+module Sound.Freesound.Types (
     SoundId
   , toInt
   --, fromInt
@@ -15,13 +15,15 @@ module Sound.Freesound.Sound (
 
 import           Control.Applicative ((<$>), (<*>))
 import           Control.Monad (mzero)
-import           Data.Aeson
+import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?))
+import qualified Data.ByteString.Char8 as BS
 import           Data.Int (Int64)
 import           Data.Maybe (mapMaybe)
 import           Data.Text (Text)
+import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Network.URI (URI)
 import           Prelude hiding (id)
-import           Sound.Freesound.URI
+import           Sound.Freesound.URI (Data, Resource)
 --import qualified Sound.Freesound.Version2.User as User
 
 newtype SoundId = SoundId { toInt :: Integer }  deriving (Eq, Ord, Show)
@@ -35,20 +37,20 @@ instance FromJSON SoundId where
 
 data FileType = WAV | AIFF | OGG | MP3 | FLAC deriving (Eq, Show)
 
-instance ToQueryString FileType where
-  toQueryString WAV  = "wav"
-  toQueryString AIFF = "aif"
-  toQueryString OGG  = "ogg"
-  toQueryString MP3  = "mp3"
-  toQueryString FLAC = "flac"
+instance QueryValueLike FileType where
+  toQueryValue WAV  = toQueryValue $ BS.pack "wav"
+  toQueryValue AIFF = toQueryValue $ BS.pack "aif"
+  toQueryValue OGG  = toQueryValue $ BS.pack "ogg"
+  toQueryValue MP3  = toQueryValue $ BS.pack "mp3"
+  toQueryValue FLAC = toQueryValue $ BS.pack "flac"
 
 instance FromJSON FileType where
   parseJSON (String v) =
     case v of
-      "wav" -> return WAV
-      "aif" -> return AIFF -- FIXME: this is aiff in the Freesound docs
-      "ogg" -> return OGG
-      "mp3" -> return MP3
+      "wav"  -> return WAV
+      "aif"  -> return AIFF -- FIXME: this is aiff in the Freesound docs
+      "ogg"  -> return OGG
+      "mp3"  -> return MP3
       "flac" -> return FLAC
       _ -> mzero
   parseJSON _  = mzero

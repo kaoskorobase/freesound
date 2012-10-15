@@ -26,12 +26,12 @@ import qualified Network.HTTP.Conduit as HTTP
 import qualified Network.HTTP.Types as HTTP
 import qualified Data.ByteString.Lazy as L
 import           Sound.Freesound.Sound.Search
-import           Sound.Freesound.Sound
+import           Sound.Freesound.Types
 import qualified Sound.Freesound.Sound.Search.Filter as F
 import           Sound.Freesound.URI
 
 apiKey :: APIKey
-apiKey = T.pack "9a585b9eb66b4e84b405f50e4a8185a1"
+apiKey = "9a585b9eb66b4e84b405f50e4a8185a1"
 
 httpRequest :: (Failure HTTP.HttpException m, C.MonadBaseControl IO m, C.MonadResource m) =>
     HTTP.Manager -> HTTPRequest m
@@ -53,7 +53,7 @@ runFreesound a = HTTP.withManager $ \man -> withFreesound (httpRequest man) apiK
 main :: IO ()
 main = runFreesound $ do
     let q = include "drum" & include "bass" & exclude "loop"
-        f = mempty -- F.username "Dolfeus"
+        f = F.username "Dolfeus"
         s = Nothing
     --simpleHttp "http://www.haskell.org/") >>= liftIO . L.putStr
     --HTTP.simpleHttp (show u) >>= liftIO . printit . J.decode

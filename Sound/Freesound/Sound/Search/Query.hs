@@ -1,6 +1,5 @@
 module Sound.Freesound.Sound.Search.Query (
-	ToQueryString(..)
-  , Query
+    Query
   , include
   , exclude
   , append
@@ -10,12 +9,12 @@ module Sound.Freesound.Sound.Search.Query (
 import			 Data.Char (isSpace)
 import 			 Data.Text (Text)
 import qualified Data.Text as Text
-import 			 Sound.Freesound.URI (ToQueryString(..))
+import 			 Network.HTTP.Types.QueryLike (QueryValueLike(..))
 
 newtype Query = Query [Term] deriving (Eq, Show)
 
-instance ToQueryString Query where
-	toQueryString (Query ts) = toQueryString $ Text.unwords (map f ts)
+instance QueryValueLike Query where
+	toQueryValue (Query ts) = toQueryValue $ Text.unwords (map f ts)
 		where
 			quote t
 				| Text.any isSpace t = Text.cons '"' (Text.snoc t '"')
