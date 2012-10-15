@@ -18,7 +18,7 @@ import qualified Data.ByteString.Lazy as L
 import           Sound.Freesound.Sound.Search
 import           Sound.Freesound.Sound
 import qualified Sound.Freesound.Sound.Search.Filter as F
-import 			 Sound.Freesound.URI
+import           Sound.Freesound.URI
 
 apiKey = T.pack "9a585b9eb66b4e84b405f50e4a8185a1"
 
@@ -28,19 +28,23 @@ printit x = putStrLn $ "Response: " ++ show x
 httpRequest :: (Failure HTTP.HttpException m, R.MonadBaseControl IO m, C.MonadResource m) =>
     HTTPRequest (R.ReaderT HTTP.Manager m)
 httpRequest _ u _ = do
+    liftIO $ putStrLn $ "Request: " ++ show u
     man <- R.ask
     req <- HTTP.parseUrl (show u)
     res <- HTTP.http req man
     return $ HTTP.responseBody res
 
+withManager a = HTTP.withManager $ \man -> R.runReaderT a man
+withFreesound' = withManager . withFreesound httpRequest apiKey
+
 main :: IO ()
-main = HTTP.withManager $ \man -> do
-    flip R.runReaderT man $ withFreesound httpRequest apiKey $ do
-        let q = include "drum" & include "bass" & exclude "loop"
-            f = F.username "Dolfeus"
-        --simpleHttp "http://www.haskell.org/") >>= liftIO . L.putStr
-        --HTTP.simpleHttp (show u) >>= liftIO . printit . J.decode
-        u <- searchURI q f Nothing
-        liftIO $ putStrLn $ "Request: " ++ show u
-        r <- search q f Nothing
-        liftIO $ print r
+main = withFreesound' $ do
+    let q = include "drum" & include "bass" & exclude "loop"
+        f = mempty -- F.username "Dolfeus"
+        s = Nothing
+    --simpleHttp "http://www.haskell.org/") >>= liftIO . L.putStr
+    --HTTP.simpleHttp (show u) >>= liftIO . printit . J.decode
+    u <- searchURI q f s
+    liftIO $ putStrLn $ "Request: " ++ show u
+    r <- search q f s
+    liftIO $ print r
