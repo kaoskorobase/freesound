@@ -3,13 +3,17 @@ module Sound.Freesound.URI (
     ToQueryString(..)
   , addQueryParams
   , addPath
-  , Resource
+  , Resource(..)
   , resourceURI
+  , getResource
   , Data
   , dataURI
-  , apiURI
+  , getData
+  , APIKey
+  , HTTPRequest
   , FreesoundT
   , withFreesound
+  , apiURI
 ) where
 
 import           Control.Monad (liftM, mzero)

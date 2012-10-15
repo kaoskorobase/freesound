@@ -4,6 +4,7 @@ module Sound.Freesound.Version2.Sound.Search (
   , Sorting(..)
   --, toURL
   , searchURI
+  , search
   , module Sound.Freesound.Version2.Sound.Search.Query
   , Filters
 ) where
@@ -17,6 +18,7 @@ import qualified Network.URI as URI
 --import           Sound.Freesound (Freesound, Response)
 --import qualified Sound.Freesound as Freesound
 import           Sound.Freesound.URI
+import           Sound.Freesound.Version2.Sound (Sounds)
 import qualified Sound.Freesound.Version2.Sound as Sound
 import           Sound.Freesound.Version2.Sound.Search.Filter (Filters)
 import           Sound.Freesound.Version2.Sound.Search.Query (Query, ToQueryString(..), include, exclude, (&))
@@ -39,3 +41,6 @@ searchURI :: Monad m => Query -> Filters -> Maybe Sorting -> FreesoundT m URI
 searchURI q fs s = do
   u <- apiURI "sounds/search"
   return $ addQueryParams [("q", toQueryString q), ("f", toQueryString fs)] u
+
+search :: Monad m => Query -> Filters -> Maybe Sorting -> FreesoundT m Sounds
+search q fs s = searchURI q fs s >>= getResource . Resource
