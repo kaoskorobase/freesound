@@ -134,7 +134,7 @@ instance ToQueryString Filter where
       F_is_remix x -> mkF "is_remix" x
       F_was_remixed x -> mkF "was_remixed" x
       F_pack x -> mkF "pack" x
-      --_tokenized: string, tokenized
+      --F_pack_tokenized: string, tokenized
       F_is_geotagged x -> mkF "is_geotagged" x
       F_type x -> mkF "type" x
       F_duration x -> mkF "duration" x

@@ -127,12 +127,12 @@ data Sound = Sound {
 
 , samplerate          :: Int          -- | The samplerate of the sound.
 , bitdepth            :: Int          -- | The bit depth of the sound.
-, filesize            :: Int64        -- | The size of the file in bytes.
+, filesize            :: Integer      -- | The size of the file in bytes.
 , bitrate             :: Int          -- | The bit rate of the sound.
-, channels            :: Int          -- | The number of channels.
+, channels            :: Int          -- | The number of cha-- nnel-- s-- .
 
 , description         :: Text         -- | The description the user gave the sound.
-, license             :: Text         -- | The license under which the sound is available to you.
+, license             :: Data         -- | The license under which the sound is available to you.
 , created             :: Text         -- | The date of when the sound was uploaded.
 , numComments         :: Int          -- | The number of comments.
 , numDownloads        :: Int          -- | The number of times the sound was downloaded.
@@ -158,7 +158,7 @@ instance FromJSON Sound where
     <*> v .: "num_downloads"
     <*> v .: "num_ratings"
     <*> v .: "avg_rating"
-    <*> v .: "geotag"
+    <*> v .:? "geotag"
   parseJSON _ = mzero
 
 data Sounds = Sounds {
