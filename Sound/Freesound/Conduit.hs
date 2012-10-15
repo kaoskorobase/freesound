@@ -2,7 +2,6 @@
 module Sound.Freesound.Conduit where
 
 import           Control.Failure (Failure)
-import           Control.Monad (liftM)
 import           Control.Monad.IO.Class (liftIO)
 import qualified Control.Monad.Trans.Class as R
 import qualified Control.Monad.Trans.Control as R
