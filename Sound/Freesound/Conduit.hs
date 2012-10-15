@@ -19,7 +19,7 @@ import qualified Data.ByteString.Lazy as L
 import           Sound.Freesound.Version2.Sound.Search
 import           Sound.Freesound.Version2.Sound
 import qualified Sound.Freesound.Version2.Sound.Search.Filter as F
-import Sound.Freesound.URI
+import 			 Sound.Freesound.URI
 
 apiKey = T.pack "9a585b9eb66b4e84b405f50e4a8185a1"
 
