@@ -35,9 +35,12 @@ module Sound.Freesound.Version2.Sound.Search.Filter (
 import           Data.Monoid (Monoid(..))
 import           Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Time.Clock as Time
+import qualified Data.Time.Format as Time
 import           Prelude hiding (id)
 import           Sound.Freesound.URI (ToQueryString(..))
 import           Sound.Freesound.Version2.Sound (FileType, SoundId, toInt)
+import qualified System.Locale as Time
 
 data License = Attribution | AttributionNoncommercial | CreativeCommons0 deriving (Eq, Show)
 
@@ -60,6 +63,9 @@ instance ToNumericalString Integer where
 
 instance ToNumericalString SoundId where
   toNumericalString = show . toInt
+
+instance ToNumericalString Time.UTCTime where
+  toNumericalString = Time.formatTime Time.defaultTimeLocale "%FT%k:%M:%S%QZ"
 
 equals :: a -> Numerical a
 equals = Equals
