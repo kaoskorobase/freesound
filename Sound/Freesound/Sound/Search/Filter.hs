@@ -65,7 +65,7 @@ instance ToNumericalString SoundId where
   toNumericalString = show . toInt
 
 instance ToNumericalString Time.UTCTime where
-  toNumericalString = Time.formatTime Time.defaultTimeLocale "%FT%k:%M:%S%QZ"
+  toNumericalString = Time.formatTime Time.defaultTimeLocale "%FT%H:%M:%S%QZ"
 
 equals :: a -> Numerical a
 equals = Equals
