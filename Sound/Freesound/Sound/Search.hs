@@ -19,9 +19,9 @@ import qualified Network.URI as URI
 --import           Sound.Freesound (Freesound, Response)
 --import qualified Sound.Freesound as Freesound
 import           Sound.Freesound.URI
-import           Sound.Freesound.Types (Sounds)
 import           Sound.Freesound.Sound.Search.Filter (Filters)
 import           Sound.Freesound.Sound.Search.Query (Query, include, exclude, (&))
+import           Sound.Freesound.Types (Sounds)
 
 data SortMethod    = Duration | Created | Downloads | Rating deriving (Eq, Show)
 data SortDirection = Ascending | Descending deriving (Eq, Show)

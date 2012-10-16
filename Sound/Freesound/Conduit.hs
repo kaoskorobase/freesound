@@ -26,8 +26,8 @@ import qualified Network.HTTP.Conduit as HTTP
 import qualified Network.HTTP.Types as HTTP
 import qualified Data.ByteString.Lazy as L
 import           Sound.Freesound.Sound.Search
-import           Sound.Freesound.Types
 import qualified Sound.Freesound.Sound.Search.Filter as F
+import           Sound.Freesound.Types
 import           Sound.Freesound.URI
 
 apiKey :: APIKey
