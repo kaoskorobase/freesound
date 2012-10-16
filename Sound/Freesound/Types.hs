@@ -1,30 +1,51 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Sound.Freesound.Types (
-    SoundId
-  , toInt
-  --, fromInt
-  , FileType(..)
-  , Tag
-  , SoundSummary(..)
-  , Sound(..)
-  , Sounds(..)
-  , UserSummary(..)
-  , User(..)
-  , Pack(..)
-) where
+module Sound.Freesound.Types
+--(
+--    SoundId
+--  , toInt
+--  --, fromInt
+--  , FileType(..)
+--  , Tag
+--  , SoundSummary(..)
+--  , Sound(..)
+--  , Sounds(..)
+--  , UserSummary(..)
+--  , User(..)
+--  , Pack(..)
+--)
+where
 
 import           Control.Applicative ((<$>), (<*>))
 import           Control.Monad (mzero)
 import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?))
 import qualified Data.ByteString.Char8 as BS
+import           Data.Default (Default(..))
 import           Data.Int (Int64)
 import           Data.Maybe (mapMaybe)
 import           Data.Text (Text)
-import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
+import           Network.HTTP.Types.QueryLike (QueryLike(..), QueryValueLike(..))
 import           Network.URI (URI)
 import           Prelude hiding (id)
 import           Sound.Freesound.URI (Data, Resource)
 --import qualified Sound.Freesound.Version2.User as User
+
+class HasName a where
+  name :: a -> Text
+
+class HasUrl a where
+  url :: a -> Data
+
+class HasSounds a where
+  sounds :: a -> Resource Sounds
+
+class HasCreationDate a where
+  created :: a -> Text
+
+class HasUser a where
+  user :: a -> UserSummary
+
+class HasDownloads a where
+  numDownloads :: a -> Integer
 
 newtype SoundId = SoundId { toInt :: Integer }  deriving (Eq, Ord, Show)
 
@@ -61,7 +82,7 @@ type Tag = Text
 data SoundSummary = SoundSummary {
     id                  :: SoundId                -- ^ The sound’s unique identifier.
   , ref                 :: Resource Sound         -- ^ The URI for this sound.
-  , url                 :: Data                   -- ^ The URI for this sound on the Freesound website.
+  , sound_url           :: Data                   -- ^ The URI for this sound on the Freesound website.
   , preview_hq_mp3      :: Data                   -- ^ The URI for retrieving a high quality (~128kbps) mp3 preview of the sound.
   , preview_lq_mp3      :: Data                   -- ^ The URI for retrieving a low quality (~64kbps) mp3 preview of the sound.
   , preview_hq_ogg      :: Data                   -- ^ The URI for retrieving a high quality (~192kbps) ogg preview of the sound.
@@ -73,7 +94,7 @@ data SoundSummary = SoundSummary {
   , originalFilename    :: Text                   -- ^ The name of the sound file when it was uploaded.
   , tags                :: [Tag]                  -- ^ An array of tags the user gave the sound.
   , pack                :: Maybe (Resource Pack)  -- ^ If the sound is part of a pack, this URI points to that pack’s API resource.
-  , user                :: UserSummary            -- ^ A dictionary with the username, url, and ref for the user that uploaded the sound.
+  , sound_user          :: UserSummary            -- ^ A dictionary with the username, url, and ref for the user that uploaded the sound.
   , spectral_m          :: Data                   -- ^ A visualization of the sounds spectrum over time, jpeg file (medium).
   , spectral_l          :: Data                   -- ^ A visualization of the sounds spectrum over time, jpeg file (large).
   , waveform_m          :: Data                   -- ^ A visualization of the sounds waveform, png file (medium).
@@ -81,6 +102,12 @@ data SoundSummary = SoundSummary {
   , analysisStats       :: Data                   -- ^ URI pointing to the analysis results of the sound (see Analysis Descriptor Documentation).
   , analysisFrames      :: Data                   -- ^ The URI for retrieving a JSON file with analysis information for each frame of the sound (see Analysis Descriptor Documentation).
   } deriving (Eq, Show)
+
+instance HasUrl SoundSummary where
+  url = sound_url
+
+instance HasUser SoundSummary where
+  user = sound_user
 
 instance FromJSON SoundSummary where
   parseJSON (Object v) =
@@ -135,14 +162,20 @@ data Sound = Sound {
 
 , description         :: Text         -- ^ The description the user gave the sound.
 , license             :: Data         -- ^ The license under which the sound is available to you.
-, created             :: Text         -- ^ The date of when the sound was uploaded.
-, numComments         :: Int          -- ^ The number of comments.
-, numDownloads        :: Int          -- ^ The number of times the sound was downloaded.
-, numRatings          :: Int          -- ^ The number of times the sound was rated.
+, sound_created       :: Text         -- ^ The date of when the sound was uploaded.
+, numComments         :: Integer      -- ^ The number of comments.
+, sound_numDownloads  :: Integer      -- ^ The number of times the sound was downloaded.
+, numRatings          :: Integer      -- ^ The number of times the sound was rated.
 , avgRating           :: Double       -- ^ The average rating of the sound.
 
 , geotag              :: Maybe Geotag -- ^ A dictionary with the latitude (‘lat’) and longitude (‘lon’) of the geotag (only for sounds that have been geotagged).
 } deriving (Eq, Show)
+
+instance HasCreationDate Sound where
+  created = sound_created
+
+instance HasDownloads Sound where
+  numDownloads = sound_numDownloads
 
 instance FromJSON Sound where
   parseJSON j@(Object v) =
@@ -163,29 +196,62 @@ instance FromJSON Sound where
     <*> v .:? "geotag"
   parseJSON _ = mzero
 
-data Sounds = Sounds {
-  sounds    :: [SoundSummary]
-, numSounds :: Int
-, numPages  :: Int
-, previous  :: Maybe (Resource Sounds)
-, next      :: Maybe (Resource Sounds)
+data List a = List {
+  elems    :: [a]
+, numElems :: Int
+, numPages :: Int
+, previous :: Maybe (Resource (List a))
+, next     :: Maybe (Resource (List a))
 } deriving (Eq, Show)
 
-instance FromJSON Sounds where
-  parseJSON (Object v) = Sounds
-                          <$> v .: "sounds"
-                          <*> v .: "num_results"
-                          <*> v .: "num_pages"
-                          <*> v .:? "previous"
-                          <*> v .:? "next"
+instance FromJSON a => FromJSON (List a) where
+  parseJSON (Object v) =
+    List
+    <$> v .: "sounds"
+    <*> v .: "num_results"
+    <*> v .: "num_pages"
+    <*> v .:? "previous"
+    <*> v .:? "next"
   parseJSON _ = mzero
+
+data Pagination = Pagination {
+  page :: Int
+, resultsPerPage :: Int
+} deriving (Eq, Show)
+
+instance Default Pagination where
+  def = Pagination 0 15
+
+instance QueryLike Pagination where
+  toQuery a = toQuery [ if page def == page a
+                        then Nothing
+                        else Just ("p"::BS.ByteString, show (page a + 1))
+                      , if resultsPerPage def == resultsPerPage a
+                        then Nothing
+                        else Just ("sounds_per_page", show (resultsPerPage a)) ]
+
+--data Sounds = Sounds {
+--  sounds    :: [SoundSummary]
+--, numSounds :: Int
+--, numPages  :: Int
+--, previous  :: Maybe (Resource Sounds)
+--, next      :: Maybe (Resource Sounds)
+--} deriving (Eq, Show)
+
+type Sounds = List SoundSummary
 
 -- | User of the Freesound database.
 data UserSummary = UserSummary {
-  username :: Text            -- ^ The user’s username.
+  user_name :: Text            -- ^ The user’s username.
 , user_ref  :: Resource User  -- ^ The URI for this resource.
 , user_url :: Data            -- ^ The profile page for the user on the Freesound website.
 } deriving (Eq, Show)
+
+instance HasName UserSummary where
+  name = user_name
+
+instance HasUrl UserSummary where
+  url = user_url
 
 instance FromJSON UserSummary where
   parseJSON (Object v) =
@@ -199,13 +265,16 @@ data User = User {
   user_summary :: UserSummary       -- ^ Summary.
 , user_sounds :: Resource Sounds    -- ^ The API URI for this user’s sound collection.
 , packs :: Data                     -- ^ The API URI for this user’s pack collection.
-, first_name :: Text                -- ^ The user’s first name, possibly empty.
-, last_name :: Text                 -- ^ The user’s last name, possibly empty.
+, firstName :: Text                 -- ^ The user’s first name, possibly empty.
+, lastName :: Text                  -- ^ The user’s last name, possibly empty.
 , about :: Text                     -- ^ A small text the user wrote about himself.
-, home_page :: Maybe Data           -- ^ The user’s homepage, possibly empty.
+, homePage :: Maybe Data            -- ^ The user’s homepage, possibly empty.
 , signature :: Text                 -- ^ The user’s signature, possibly empty.
 , dateJoined :: Text                -- ^ The date the user joined Freesound.
 } deriving (Eq, Show)
+
+instance HasSounds User where
+  sounds = user_sounds
 
 instance FromJSON User where
   parseJSON j@(Object v) =
@@ -225,11 +294,29 @@ data Pack = Pack {
   pack_ref :: Resource Pack         -- ^ The URI for this resource.
 , pack_url :: Data                  -- ^ The URL for this pack’s page on the Freesound website.
 , pack_sounds :: Resource Sounds    -- ^ The API URI for the pack’s sound collection.
-, pack_user :: Resource UserSummary -- ^ A JSON object with the user’s username, url, and ref.
+, pack_user :: UserSummary          -- ^ A JSON object with the user’s username, url, and ref.
 , pack_name :: Text                 -- ^ The pack’s name.
 , pack_created :: Text              -- ^ The date when the pack was created.
 , pack_numDownloads :: Integer      -- ^ The number of times the pack was downloaded. 
 } deriving (Eq, Show)
+
+instance HasName Pack where
+  name = pack_name
+
+instance HasUrl Pack where
+  url = pack_url
+
+instance HasSounds Pack where
+  sounds = pack_sounds
+
+instance HasCreationDate Pack where
+  created = pack_created
+
+instance HasUser Pack where
+  user = pack_user
+
+instance HasDownloads Pack where
+  numDownloads = pack_numDownloads
 
 instance FromJSON Pack where
   parseJSON (Object v) =
@@ -243,3 +330,28 @@ instance FromJSON Pack where
     <*> v .: "num_downloads"
   parseJSON _ = mzero
 
+data Bookmark = Bookmark {
+  sound :: SoundSummary
+, bookmark_name :: Text
+}
+
+instance HasName Bookmark where
+  name = bookmark_name
+
+instance FromJSON Bookmark where
+  parseJSON j@(Object v) =
+    Bookmark
+    <$> parseJSON j
+    <*> v .: "bookmark_name"
+
+data BookmarkCategory = BookmarkCategory {
+  bookmarkCategory_name :: Text
+, bookmarkCategory_url :: Data
+, bookmarks :: Resource (List Bookmark)
+}
+
+instance HasName BookmarkCategory where
+  name = bookmarkCategory_name
+
+instance HasUrl BookmarkCategory where
+  url = bookmarkCategory_url

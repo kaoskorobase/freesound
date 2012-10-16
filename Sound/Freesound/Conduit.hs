@@ -19,6 +19,7 @@ import qualified Control.Monad.Trans.Control as C
 import qualified Data.Aeson as J
 import qualified Data.ByteString as B
 import qualified Data.Conduit as C
+import           Data.Default (def)
 import           Data.Monoid (mempty)
 import qualified Data.Text as T
 import           Network.URI (URI)
@@ -57,7 +58,7 @@ main = runFreesound $ do
         s = Nothing
     --simpleHttp "http://www.haskell.org/") >>= liftIO . L.putStr
     --HTTP.simpleHttp (show u) >>= liftIO . printit . J.decode
-    u <- searchURI q f s
+    u <- searchURI def q f s
     liftIO $ putStrLn $ "Request: " ++ show u
-    r <- search q f s
+    r <- search def q f s
     liftIO $ print r

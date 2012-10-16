@@ -13,7 +13,7 @@ import           Data.Maybe (fromJust)
 import           Data.Text (Text)
 import qualified Data.Text as T
 --import           Network.Curl (CurlBuffer, CurlOption)
-import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
+import           Network.HTTP.Types.QueryLike (QueryValueLike(..), toQuery)
 import           Network.URI (URI)
 import qualified Network.URI as URI
 --import           Sound.Freesound (Freesound, Response)
@@ -21,7 +21,7 @@ import qualified Network.URI as URI
 import           Sound.Freesound.URI
 import           Sound.Freesound.Sound.Search.Filter (Filters)
 import           Sound.Freesound.Sound.Search.Query (Query, include, exclude, (&))
-import           Sound.Freesound.Types (Sounds)
+import           Sound.Freesound.Types (Pagination, Sounds)
 
 data SortMethod    = Duration | Created | Downloads | Rating deriving (Eq, Show)
 data SortDirection = Ascending | Descending deriving (Eq, Show)
@@ -37,11 +37,11 @@ instance QueryValueLike Sorting where
   toQueryValue (Sorting Rating Ascending)     = toQueryValue "rating_asc"  
   toQueryValue (Sorting Rating Descending)    = toQueryValue "rating_desc"
 
-searchURI :: Monad m => Query -> Filters -> Maybe Sorting -> FreesoundT m URI
-searchURI q fs s = apiURI [T.pack "sounds", T.pack "search"]
-                          [ ((,)"q") `fmap` toQueryValue q
-                          , ((,)"f") `fmap` toQueryValue fs
-                          , ((,)"s") `fmap` toQueryValue s ]
+searchURI :: Monad m => Pagination -> Query -> Filters -> Maybe Sorting -> FreesoundT m URI
+searchURI p q fs s = apiURI [T.pack "sounds", T.pack "search"]
+                            $ toQuery p ++ toQuery [ ((,)"q") `fmap` toQueryValue q
+                                                   , ((,)"f") `fmap` toQueryValue fs
+                                                   , ((,)"s") `fmap` toQueryValue s ]
 
-search :: Monad m => Query -> Filters -> Maybe Sorting -> FreesoundT m Sounds
-search q fs s = searchURI q fs s >>= getResource . Resource
+search :: Monad m => Pagination -> Query -> Filters -> Maybe Sorting -> FreesoundT m Sounds
+search p q fs s = searchURI p q fs s >>= getResource . Resource
