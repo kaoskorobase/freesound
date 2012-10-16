@@ -265,16 +265,21 @@ data User = User {
   user_summary :: UserSummary       -- ^ Summary.
 , user_sounds :: Resource Sounds    -- ^ The API URI for this user’s sound collection.
 , packs :: Data                     -- ^ The API URI for this user’s pack collection.
-, firstName :: Text                 -- ^ The user’s first name, possibly empty.
-, lastName :: Text                  -- ^ The user’s last name, possibly empty.
-, about :: Text                     -- ^ A small text the user wrote about himself.
-, homePage :: Maybe Data            -- ^ The user’s homepage, possibly empty.
-, signature :: Text                 -- ^ The user’s signature, possibly empty.
+, firstName :: Maybe Text           -- ^ The user’s first name, possibly empty.
+, lastName :: Maybe Text            -- ^ The user’s last name, possibly empty.
+, about :: Maybe Text               -- ^ A small text the user wrote about himself.
+-- FIXME: homePage :: Maybe Data
+, homePage :: Maybe Text            -- ^ The user’s homepage, possibly empty.
+, signature :: Maybe Text           -- ^ The user’s signature, possibly empty.
 , dateJoined :: Text                -- ^ The date the user joined Freesound.
+, bookmarkCategories :: Resource [BookmarkCategory]
 } deriving (Eq, Show)
 
 instance HasSounds User where
   sounds = user_sounds
+
+textToMaybe "" = Nothing
+textToMaybe s  = Just s
 
 instance FromJSON User where
   parseJSON j@(Object v) =
@@ -282,12 +287,13 @@ instance FromJSON User where
     <$> parseJSON j
     <*> v .: "sounds"
     <*> v .: "packs"
-    <*> v .: "first_name"
-    <*> v .: "last_name"
-    <*> v .: "about"
-    <*> v .: "home_page"
-    <*> v .: "signature"
+    <*> (textToMaybe <$> (v .: "first_name"))
+    <*> (textToMaybe <$> (v .: "last_name"))
+    <*> v .: "about" -- FIXME: Why doesn't return empty string?
+    <*> (textToMaybe <$> (v .: "home_page"))
+    <*> (textToMaybe <$> (v .: "signature"))
     <*> v .: "date_joined"
+    <*> v .: "bookmark_categories"
   parseJSON _ = mzero
 
 data Pack = Pack {
@@ -348,10 +354,18 @@ data BookmarkCategory = BookmarkCategory {
   bookmarkCategory_name :: Text
 , bookmarkCategory_url :: Data
 , bookmarks :: Resource (List Bookmark)
-}
+} deriving (Show)
 
 instance HasName BookmarkCategory where
   name = bookmarkCategory_name
 
 instance HasUrl BookmarkCategory where
   url = bookmarkCategory_url
+
+instance FromJSON BookmarkCategory where
+  parseJSON (Object v) =
+    BookmarkCategory
+    <$> v .: "name"
+    <*> v .: "url"
+    <*> v .: "bookmarks"
+  parseJSON _ = mzero

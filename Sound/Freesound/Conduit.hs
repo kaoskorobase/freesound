@@ -10,8 +10,7 @@
 -- >     res <- HTTP.http req man
 -- >     return $ HTTP.responseBody res
 
-module Sound.Freesound.Conduit (
-) where
+module Sound.Freesound.Conduit where
 
 import           Control.Failure (Failure)
 import           Control.Monad.IO.Class (MonadIO, liftIO)

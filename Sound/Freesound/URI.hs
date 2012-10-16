@@ -13,6 +13,7 @@ module Sound.Freesound.URI (
   , FreesoundT
   , withFreesound
   , apiURI
+  , getResourceURI
 ) where
 
 import qualified Blaze.ByteString.Builder as Builder
@@ -79,10 +80,13 @@ parseURI' = URI.parseURI . URI.escapeURIString URI.isAllowedInURI
 getURI :: Monad m => URI -> FreesoundT m BL.ByteString
 getURI u = do
   f <- FreesoundT $ R.asks httpRequest
-  u' <- importURI u
-  s <- FreesoundT $ R.lift $ f HTTP.methodGet u' Nothing
+  s <- FreesoundT $ R.lift $ f HTTP.methodGet u Nothing
   bs <- FreesoundT $ R.lift $ s C.$$+- CL.consume
   return $ BL.fromChunks bs
+
+getResourceURI :: (FromJSON a, Monad m) => URI -> FreesoundT m a
+getResourceURI u = return . handle . J.decode =<< getURI u
+  where handle = maybe (error "Internal error: JSON decoding failed") id
 
 newtype Resource a = Resource { resourceURI :: URI } deriving (Eq)
 
@@ -94,8 +98,7 @@ instance FromJSON a => FromJSON (Resource a) where
   parseJSON _ = mzero
 
 getResource :: (FromJSON a, Monad m) => Resource a -> FreesoundT m a
-getResource = liftM (handle . J.decode) . getURI . resourceURI
-  where handle = maybe (error "Internal error: JSON decoding failed") id
+getResource r = getResourceURI =<< importURI (resourceURI r)
 
 newtype Data = Data { dataURI :: URI } deriving (Eq)
 
@@ -107,7 +110,7 @@ instance FromJSON Data where
   parseJSON _ = mzero
 
 getData :: Monad m => Data -> FreesoundT m BL.ByteString
-getData = getURI . dataURI
+getData d = getURI =<< importURI (dataURI d)
 
 type APIKey = String
 
@@ -128,7 +131,7 @@ withFreesound mkRequest apiKey = flip R.runReaderT (Env mkRequest apiKey) . unFr
 baseURI :: Builder.Builder
 baseURI = Builder.fromString "http://freesound.org/api"
 
-apiURI :: (QueryLike q, Monad m) => [Text] -> q -> FreesoundT m URI
+apiURI :: (Monad m) => [Text] -> HTTP.Query -> FreesoundT m URI
 apiURI path = importURI
             . fromJust
             . parseURI
@@ -136,7 +139,6 @@ apiURI path = importURI
             . Builder.toLazyByteString
             . mappend baseURI
             . HTTP.encodePath path
-            . toQuery
 
 -- | Construct an API request URI from an existing URI.
 importURI :: Monad m => URI -> FreesoundT m URI

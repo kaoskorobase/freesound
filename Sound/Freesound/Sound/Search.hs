@@ -44,4 +44,4 @@ searchURI p q fs s = apiURI [T.pack "sounds", T.pack "search"]
                                                    , ((,)"s") `fmap` toQueryValue s ]
 
 search :: Monad m => Pagination -> Query -> Filters -> Maybe Sorting -> FreesoundT m Sounds
-search p q fs s = searchURI p q fs s >>= getResource . Resource
+search p q fs s = searchURI p q fs s >>= getResourceURI

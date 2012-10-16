@@ -1,5 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-
 -- | This module provides access to the Freesound Project, a database of
 -- Creative Commons licensed sounds.
 --
@@ -28,3 +26,11 @@ module Sound.Freesound
 --)
 where
 
+import Data.Text (Text)
+import qualified Data.Text as T
+import Sound.Freesound.Types
+import Sound.Freesound.URI
+import Sound.Freesound.Conduit
+
+userByName :: Monad m => Text -> FreesoundT m User
+userByName t = apiURI [ T.pack "people", t ] [] >>= getResourceURI
