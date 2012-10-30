@@ -9,6 +9,7 @@ import           Data.Text (Text)
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
 import           Sound.Freesound.API (Resource, URI)
+import           Sound.Freesound.List (Elem(..))
 import qualified Sound.Freesound.User.Type as User
 
 newtype SoundId = SoundId Integer
@@ -167,7 +168,8 @@ instance FromJSON Summary where
     <*> v .: "analysis_frames"
   parseJSON _ = mzero
 
--- In order to unify the interface of Info and Sound maybe add a typeclass.
+instance Elem Summary where
+  elemsFieldName _ = "sounds"
 
 -- | Coordinate
 data Geotag = Geotag {

@@ -29,11 +29,12 @@ import           Control.Applicative (pure, (<*>))
 import           Data.Default (def)
 import qualified Data.Text as T
 import           Network.HTTP.Types.QueryLike (toQuery, toQueryValue)
-import           Sound.Freesound.Search (Filters, Pagination, Query, Results, Sorting)
+import           Sound.Freesound.List (List)
+import           Sound.Freesound.Search (Filters, Pagination, Query, Sorting)
 import           Sound.Freesound.Sound.Type
 import           Sound.Freesound.API (FreesoundT, appendQuery, getResource, resourceURI)
 
-type Sounds = Results Summary
+type Sounds = List Summary
 
 search :: Monad m => Pagination -> Sorting -> Filters -> Query -> FreesoundT m Sounds
 search p s fs q =
@@ -47,8 +48,10 @@ search p s fs q =
 search_ :: Monad m => Query -> FreesoundT m Sounds
 search_ = search def def def
 
+--geotagged :: ...
+
 getSimilar :: (Sound a, Monad m) => Pagination -> a -> FreesoundT m Sounds
-getSimilar p = getResource . appendQuery (toQuery p) . similarity 
+getSimilar p = getResource . appendQuery p . similarity
 
 getSimilar_ :: (Sound a, Monad m) => a -> FreesoundT m Sounds
 getSimilar_ = getSimilar def

@@ -82,13 +82,15 @@ getURI u = do
 newtype Resource = Resource URI deriving (Eq, FromJSON, Show)
 
 -- | Append a query string to a resource URI.
-appendQuery :: HTTP.Query -> Resource -> Resource
+appendQuery :: HTTP.QueryLike a => a -> Resource -> Resource
 appendQuery q (Resource (URI u)) = Resource $ URI $ u { URI.uriQuery = q' }
   where q' = BS.unpack
            $ Builder.toByteString
            $ HTTP.renderQueryBuilder True
-           $ HTTP.parseQuery (BS.pack (URI.uriQuery u)) ++ q
+           $ HTTP.parseQuery (BS.pack (URI.uriQuery u))
+              ++ HTTP.toQuery q
 
+-- | Create a query item for the API key.
 apiKeyQuery :: Monad m => FreesoundT m HTTP.Query
 apiKeyQuery = do
   k <- FreesoundT $ R.asks apiKey

@@ -6,25 +6,13 @@ module Sound.Freesound.Search (
   , unsorted
   , sortedBy
   , Pagination(..)
-  , Results
-  , results
-  , numResults
-  , numPages
-  , previous
-  , next
-  , getPrevious
-  , getNext
   , module Sound.Freesound.Search.Query
   , Filters
 ) where
 
-import           Control.Applicative ((<$>), (<*>))
-import           Control.Monad (liftM, mzero)
-import           Data.Aeson
 import qualified Data.ByteString.Char8 as BS
 import           Data.Default (Default(..))
 import           Network.HTTP.Types.QueryLike (QueryLike(..), QueryValueLike(..))
-import           Sound.Freesound.API (FreesoundT, Resource, getResource)
 import           Sound.Freesound.Search.Filter (Filters)
 import           Sound.Freesound.Search.Query (Query, include, exclude, (&))
 
@@ -67,28 +55,3 @@ instance QueryLike Pagination where
                       , if resultsPerPage def == resultsPerPage a
                         then Nothing
                         else Just (BS.pack "sounds_per_page", show (resultsPerPage a)) ]
-
-data Results a = Results {
-  results    :: [a]
-, numResults :: Int
-, numPages   :: Int
-, previous   :: Maybe Resource
-, next       :: Maybe Resource
-} deriving (Eq, Show)
-
-instance FromJSON a => FromJSON (Results a) where
-  parseJSON (Object v) =
-    Results
-    <$> v .: "sounds"
-    <*> v .: "num_results"
-    <*> v .: "num_pages"
-    <*> v .:? "previous"
-    <*> v .:? "next"
-  parseJSON _ = mzero
-
-getPrevious :: (FromJSON a, Monad m) => Results a -> FreesoundT m (Maybe (Results a))
-getPrevious = maybe (return Nothing) (liftM Just . getResource) . previous
-
-getNext :: (FromJSON a, Monad m) => Results a -> FreesoundT m (Maybe (Results a))
-getNext = maybe (return Nothing) (liftM Just . getResource) . next
-

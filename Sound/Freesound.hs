@@ -10,11 +10,16 @@
 module Sound.Freesound
 (
   -- * Searching
-  module FS
+  module Sound.Freesound.Search
+, module Sound.Freesound.Search.Query
+, module Sound.Freesound.List
   -- * Users
 , getUser
 , getUserByName
 , getBookmarkCategories
+, getSounds
+, getSounds_
+, getPacks
   -- * Sounds
 , search
 , search_
@@ -27,7 +32,8 @@ module Sound.Freesound
 where
 
 import Sound.Freesound.API (FreesoundT, runFreesoundT)
-import Sound.Freesound.Search as FS
-import Sound.Freesound.Search.Query as FS
-import Sound.Freesound.User (getUser, getUserByName, getBookmarkCategories)
-import Sound.Freesound.Sound (search, search_, getSimilar, getSimilar_)
+import Sound.Freesound.List
+import Sound.Freesound.Search
+import Sound.Freesound.Search.Query
+import Sound.Freesound.User
+import Sound.Freesound.Sound
