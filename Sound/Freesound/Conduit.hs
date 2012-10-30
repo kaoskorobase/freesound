@@ -34,9 +34,9 @@ apiKey :: APIKey
 apiKey = "9a585b9eb66b4e84b405f50e4a8185a1"
 
 httpRequest :: (Failure HTTP.HttpException m, C.MonadBaseControl IO m, C.MonadResource m) =>
-    HTTP.Manager -> HTTPRequest m
-httpRequest man _ uri _ = do
-    liftIO $ putStrLn $ "httpRequest: " ++ show uri
+    (String -> IO ()) -> HTTP.Manager -> HTTPRequest m
+httpRequest logUri man _ uri _ = do
+    liftIO $ logUri $ show uri
     HTTP.parseUrl (show uri)
         >>= flip HTTP.http man
         >>= return . HTTP.responseBody

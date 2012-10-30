@@ -1,8 +1,7 @@
-module Sound.Freesound.Sound.Search.Query (
+module Sound.Freesound.Search.Query (
     Query
   , include
   , exclude
-  , append
   , (&)
 ) where
 

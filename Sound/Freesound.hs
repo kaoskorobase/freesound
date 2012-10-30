@@ -4,33 +4,19 @@
 -- * <http://www.freesound.org/>
 --
 -- * <http://www.creativecommons.org/>
+--
+-- > import qualified Network.HTTP.Conduit as HTTP
+
 module Sound.Freesound
---(
---    -- * The Freesound monad
---    Freesound
---  , Response
---  , request
---  , withFreesound
---    -- * Error handling
---  , Error(..)
---  , errorString
---    -- * Sample handles
---  , Sample(..)
---    -- * API methods
---  , search
---  , Similarity(..)
---  , searchSimilar
---  , propertiesXML
---  , properties
---  , download
---)
+(
+  -- * Searching
+  module FS
+  -- * Freesound API monad
+, FreesoundT
+, runFreesoundT
+)
 where
 
-import Data.Text (Text)
-import qualified Data.Text as T
-import Sound.Freesound.Types
-import Sound.Freesound.URI
-import Sound.Freesound.Conduit
-
-userByName :: Monad m => Text -> FreesoundT m User
-userByName t = apiURI [ T.pack "people", t ] [] >>= getResourceURI
+import Sound.Freesound.API (FreesoundT, runFreesoundT)
+import Sound.Freesound.Search as FS
+import Sound.Freesound.Search.Query as FS

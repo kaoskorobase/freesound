@@ -1,11 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Sound.Freesound.Sound.Search.Filter (
-  Numerical
-, equals
-, between
-, lessThan
-, greaterThan
-, Filters
+module Sound.Freesound.Search.Filter (
+  Filters
 , id
 , username
 , created
@@ -32,18 +27,16 @@ module Sound.Freesound.Sound.Search.Filter (
 , comments
 ) where
 
+import           Data.Default (Default(..))
 import           Data.Monoid (Monoid(..))
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Maybe (mapMaybe)
 import           Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Time.Clock as Time
-import qualified Data.Time.Format as Time
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
-import           Sound.Freesound.Types (FileType, SoundId, toInt)
-import qualified System.Locale as Time
+import           Sound.Freesound.Search.Numerical (Numerical)
+import           Sound.Freesound.Sound.Type (FileType, SoundId)
 
 data License = Attribution | AttributionNoncommercial | CreativeCommons0 deriving (Eq, Show)
 
@@ -52,46 +45,12 @@ instance QueryValueLike License where
   toQueryValue AttributionNoncommercial = toQueryValue $ BS.pack "Attribution Noncommercial"
   toQueryValue CreativeCommons0         = toQueryValue $ BS.pack "Creative Commons 0"
 
--- | Numerical constraint.
-data Numerical a = Equals a | Between a a | GreaterThan a | LessThan a deriving (Eq, Show)
+-- | Newtype wrapper for avoiding orphan instance.
+newtype F_Bool = F_Bool Bool deriving (Eq, Show)
 
-class NumericalQueryValue a where
-  toNumericalQueryValue :: a -> ByteString
-
-instance NumericalQueryValue Double where
-  toNumericalQueryValue = BS.pack . show
-
-instance NumericalQueryValue Integer where
-  toNumericalQueryValue = BS.pack . show
-
-instance NumericalQueryValue SoundId where
-  toNumericalQueryValue = BS.pack . show . toInt
-
-instance NumericalQueryValue Time.UTCTime where
-  toNumericalQueryValue = BS.pack . Time.formatTime Time.defaultTimeLocale "%FT%H:%M:%S%QZ"
-
-equals :: a -> Numerical a
-equals = Equals
-
-between :: Ord a => a -> a -> Numerical a
-between a b
-  | a <= b = Between a b
-  | otherwise = Between b a
-
-greaterThan :: a -> Numerical a
-greaterThan = GreaterThan
-
-lessThan :: a -> Numerical a
-lessThan = LessThan
-
-wrap :: ByteString -> ByteString -> ByteString
-wrap a b = BS.unwords [ "[", a, "TO", b, "]" ]
-
-instance (NumericalQueryValue a) => QueryValueLike (Numerical a) where
-  toQueryValue (Equals a)      = toQueryValue $ toNumericalQueryValue a
-  toQueryValue (Between a b)   = toQueryValue $ wrap (toNumericalQueryValue a) (toNumericalQueryValue b)
-  toQueryValue (GreaterThan a) = toQueryValue $ wrap (toNumericalQueryValue a) "*"
-  toQueryValue (LessThan a)    = toQueryValue $ wrap "*" (toNumericalQueryValue a)
+instance QueryValueLike F_Bool where
+  toQueryValue (F_Bool True)  = toQueryValue $ BS.pack "true"
+  toQueryValue (F_Bool False) = toQueryValue $ BS.pack "false"
 
 data Filter =
 	  F_id (Numerical SoundId)	-- integer, sound id on freesound
@@ -101,11 +60,11 @@ data Filter =
   | F_description Text -- string, tokenized
   | F_tag Text
   | F_license License
-  | F_is_remix Bool
-  | F_was_remixed Bool
+  | F_is_remix F_Bool
+  | F_was_remixed F_Bool
   | F_pack Text
 	--pack_tokenized:	string, tokenized
-  | F_is_geotagged Bool
+  | F_is_geotagged F_Bool
   | F_type FileType
   | F_duration (Numerical Double) -- duration of sound in seconds
   | F_bitdepth (Numerical Integer) -- WARNING is not to be trusted right now
@@ -159,8 +118,11 @@ instance Monoid Filters where
   mempty = Filters []
   mappend (Filters a) (Filters b) = Filters (a++b)
 
+instance Default Filters where
+  def = mempty
+
 instance QueryValueLike Filters where
-  toQueryValue (Filters [])  = Nothing
+  toQueryValue (Filters []) = Nothing
   toQueryValue (Filters fs) = Just $ BS.unwords $ mapMaybe toQueryValue fs
 
 fromFilter :: Filter -> Filters
@@ -189,16 +151,16 @@ license :: License -> Filters
 license = fromFilter . F_license
 
 isRemix :: Bool -> Filters
-isRemix = fromFilter . F_is_remix
+isRemix = fromFilter . F_is_remix . F_Bool
 
 wasRemixed :: Bool -> Filters
-wasRemixed = fromFilter . F_was_remixed
+wasRemixed = fromFilter . F_was_remixed . F_Bool
 
 pack :: Text -> Filters
 pack = fromFilter . F_pack
 
 isGeotagged :: Bool -> Filters
-isGeotagged = fromFilter . F_is_geotagged
+isGeotagged = fromFilter . F_is_geotagged . F_Bool
 
 fileType :: FileType -> Filters
 fileType = fromFilter . F_type
