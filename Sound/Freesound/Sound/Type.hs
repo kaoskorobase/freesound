@@ -8,7 +8,7 @@ import qualified Data.ByteString.Char8 as BS
 import           Data.Text (Text)
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
-import           Sound.Freesound.API (URI)
+import           Sound.Freesound.API (Resource, URI)
 import qualified Sound.Freesound.User.Type as User
 
 newtype SoundId = SoundId Integer
@@ -50,7 +50,7 @@ class Sound a where
   -- | The sound’s unique identifier.
   id :: a -> SoundId
   -- | The URI for this sound.
-  ref :: a -> URI
+  ref :: a -> Resource
   -- | The URI for this sound on the Freesound website.
   url :: a -> URI
 
@@ -66,7 +66,7 @@ class Sound a where
   -- | The URI for retrieving the original sound.
   serve :: a -> URI
   -- | URI pointing to the similarity resource (to get a list of similar sounds).
-  similarity :: a -> URI
+  similarity :: a -> Resource
   -- | The type of sound (wav, aif, mp3, etc.).
   fileType :: a -> FileType
   -- | The duration of the sound in seconds.
@@ -76,7 +76,7 @@ class Sound a where
   -- | An array of tags the user gave the sound.
   tags :: a -> [Text]
   -- | If the sound is part of a pack, this URI points to that pack’s API resource.
-  pack :: a -> Maybe URI
+  pack :: a -> Maybe Resource
   -- | A dictionary with the username, url, and ref for the user that uploaded the sound.
   user :: a -> User.Summary
 
@@ -90,32 +90,32 @@ class Sound a where
   waveform_l :: a -> URI
 
   -- | URI pointing to the analysis results of the sound (see Analysis Descriptor Documentation).
-  analysisStats  :: a -> URI
+  analysisStats  :: a -> Resource
   -- | The URI for retrieving a JSON file with analysis information for each frame of the sound (see Analysis Descriptor Documentation).
-  analysisFrames :: a -> URI
+  analysisFrames :: a -> Resource
 
 data Summary = Summary {
     sound_id                  :: SoundId                -- ^ The sound’s unique identifier.
-  , sound_ref                 :: URI                    -- ^ The URI for this sound.
+  , sound_ref                 :: Resource               -- ^ The URI for this sound.
   , sound_url                 :: URI                    -- ^ The URI for this sound on the Freesound website.
   , sound_preview_hq_mp3      :: URI                    -- ^ The URI for retrieving a high quality (~128kbps) mp3 preview of the sound.
   , sound_preview_lq_mp3      :: URI                    -- ^ The URI for retrieving a low quality (~64kbps) mp3 preview of the sound.
   , sound_preview_hq_ogg      :: URI                    -- ^ The URI for retrieving a high quality (~192kbps) ogg preview of the sound.
   , sound_preview_lq_ogg      :: URI                    -- ^ The URI for retrieving a low quality (~80kbps) ogg of the sound.
   , sound_serve               :: URI                    -- ^ The URI for retrieving the original sound.
-  , sound_similarity          :: URI                    -- ^ URI pointing to the similarity resource (to get a list of similar sounds).
+  , sound_similarity          :: Resource               -- ^ URI pointing to the similarity resource (to get a list of similar sounds).
   , sound_type                :: FileType               -- ^ The type of sound (wav, aif, mp3, etc.).
   , sound_duration            :: Double                 -- ^ The duration of the sound in seconds.
   , sound_original_filename   :: Text                   -- ^ The name of the sound file when it was uploaded.
   , sound_tags                :: [Text]                 -- ^ An array of tags the user gave the sound.
-  , sound_pack                :: Maybe URI              -- ^ If the sound is part of a pack, this URI points to that pack’s API resource.
+  , sound_pack                :: Maybe Resource         -- ^ If the sound is part of a pack, this URI points to that pack’s API resource.
   , sound_user                :: User.Summary           -- ^ A dictionary with the username, url, and ref for the user that uploaded the sound.
   , sound_spectral_m          :: URI                    -- ^ A visualization of the sounds spectrum over time, jpeg file (medium).
   , sound_spectral_l          :: URI                    -- ^ A visualization of the sounds spectrum over time, jpeg file (large).
   , sound_waveform_m          :: URI                    -- ^ A visualization of the sounds waveform, png file (medium).
   , sound_waveform_l          :: URI                    -- ^ A visualization of the sounds waveform, png file (large).
-  , sound_analysis_stats      :: URI                    -- ^ URI pointing to the analysis results of the sound (see Analysis Descriptor Documentation).
-  , sound_analysis_frames     :: URI                    -- ^ The URI for retrieving a JSON file with analysis information for each frame of the sound (see Analysis Descriptor Documentation).
+  , sound_analysis_stats      :: Resource               -- ^ URI pointing to the analysis results of the sound (see Analysis Descriptor Documentation).
+  , sound_analysis_frames     :: Resource               -- ^ The URI for retrieving a JSON file with analysis information for each frame of the sound (see Analysis Descriptor Documentation).
   } deriving (Eq, Show)
 
 instance Sound Summary where

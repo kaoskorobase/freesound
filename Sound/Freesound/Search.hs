@@ -24,7 +24,7 @@ import           Data.Aeson
 import qualified Data.ByteString.Char8 as BS
 import           Data.Default (Default(..))
 import           Network.HTTP.Types.QueryLike (QueryLike(..), QueryValueLike(..))
-import           Sound.Freesound.API (FreesoundT, URI, getResource)
+import           Sound.Freesound.API (FreesoundT, Resource, getResource)
 import           Sound.Freesound.Search.Filter (Filters)
 import           Sound.Freesound.Search.Query (Query, include, exclude, (&))
 
@@ -72,8 +72,8 @@ data Results a = Results {
   results    :: [a]
 , numResults :: Int
 , numPages   :: Int
-, previous   :: Maybe URI
-, next       :: Maybe URI
+, previous   :: Maybe Resource
+, next       :: Maybe Resource
 } deriving (Eq, Show)
 
 instance FromJSON a => FromJSON (Results a) where

@@ -1,21 +1,22 @@
-{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Sound.Freesound.API (
   APIKey
 , HTTPRequest
 , FreesoundT
 , runFreesoundT
-, URI
-, appendQuery
-, apiURI
-, importURI
 , request
+, URI
 , getURI
+, Resource
+, resourceURI
+, appendQuery
 , getResource
 ) where
 
 import qualified Blaze.ByteString.Builder as Builder
 import qualified Blaze.ByteString.Builder.Char8 as Builder
-import           Control.Monad (mzero)
+import           Control.Monad (liftM, mzero)
 import           Control.Monad.Trans.Class (lift)
 import qualified Control.Monad.Trans.Reader as R
 import qualified Data.ByteString.Char8 as BS
@@ -38,10 +39,11 @@ type APIKey = String
 -- | HTTP request function.
 type HTTPRequest m =
      HTTP.Method
-  -> URI
+  -> URI.URI
   -> Maybe (C.Source m BS.ByteString)
   -> m (C.ResumableSource m BS.ByteString)
 
+-- | Reader monad environment.
 data Env m = Env {
     httpRequest :: HTTPRequest m
   , apiKey :: APIKey
@@ -58,10 +60,7 @@ instance MonadTrans FreesoundT where
 runFreesoundT :: HTTPRequest m -> APIKey -> FreesoundT m a -> m a
 runFreesoundT f k = flip R.runReaderT (Env f k) . unFreesoundT
 
---instance QueryValueLike Bool where
---  toQueryValue True  = toQueryValue "true"
---  toQueryValue False = toQueryValue "false"
-
+-- | Newtype wrapper of Network.URI.URI to avoid orphan instance.
 newtype URI = URI URI.URI deriving (Eq, Show)
 
 instance FromJSON URI where
@@ -72,14 +71,6 @@ instance FromJSON URI where
 parseURI' :: String -> Maybe URI
 parseURI' = fmap URI . URI.parseURI . URI.escapeURIString URI.isAllowedInURI
 
--- | Append a query string to a URI.
-appendQuery :: HTTP.Query -> URI -> URI
-appendQuery q (URI u) = URI (u { URI.uriQuery = q' })
-  where q' = BS.unpack
-           $ Builder.toByteString
-           $ HTTP.renderQueryBuilder True
-           $ HTTP.parseQuery (BS.pack (URI.uriQuery u)) ++ q
-
 -- | Download the data referred to by a URI.
 getURI :: Monad m => URI -> FreesoundT m BL.ByteString
 getURI u = do
@@ -87,43 +78,46 @@ getURI u = do
   bs <- lift $ s C.$$+- CL.consume
   return $ BL.fromChunks bs
 
--- | Download the JSON resource referred to by a URI.
-getResource :: (FromJSON a, Monad m) => URI -> FreesoundT m a
-getResource u = return . handle . J.decode =<< getURI u
-  where handle = maybe (error "Internal error: JSON decoding failed") id
+-- | Resource URI.
+newtype Resource = Resource URI deriving (Eq, FromJSON, Show)
+
+-- | Append a query string to a resource URI.
+appendQuery :: HTTP.Query -> Resource -> Resource
+appendQuery q (Resource (URI u)) = Resource $ URI $ u { URI.uriQuery = q' }
+  where q' = BS.unpack
+           $ Builder.toByteString
+           $ HTTP.renderQueryBuilder True
+           $ HTTP.parseQuery (BS.pack (URI.uriQuery u)) ++ q
 
 apiKeyQuery :: Monad m => FreesoundT m HTTP.Query
 apiKeyQuery = do
   k <- FreesoundT $ R.asks apiKey
   return $ [(BS.pack "api_key", Just (BS.pack k))]
 
---addKeyToQuery :: Monad m => HTTP.Query -> FreesoundT m HTTP.Query
---addKeyToQuery q = do
---  k <- FreesoundT $ R.asks apiKey
---  return $ (BS.pack "api_key", Just (BS.pack k)) : q
+-- | Download the resource referred to by a URI.
+getResource :: (FromJSON a, Monad m) => Resource -> FreesoundT m a
+getResource r = do
+  q <- apiKeyQuery
+  let Resource u = appendQuery q r
+  liftM (handle . J.decode) $ getURI u
+  where handle = maybe (error "Internal error (getResource): JSON decoding failed") id
 
 -- | The base URI of the Freesound API.
 baseURI :: Builder.Builder
 baseURI = Builder.fromString "http://freesound.org/api"
 
 -- | Construct an API uri from path components and a query.
-apiURI :: (Monad m) => [Text] -> HTTP.Query -> FreesoundT m URI
-apiURI path query = do
-  ak <- apiKeyQuery
-  let Just u = parseURI'
-             . BL.unpack
-             . Builder.toLazyByteString
-             . mappend baseURI
-             . HTTP.encodePath path
-             $ ak ++ query
-  return u
-
--- | Construct an API request URI from an existing URI.
-importURI :: Monad m => URI -> FreesoundT m URI
-importURI uri = apiKeyQuery >>= return . flip appendQuery uri
+resourceURI :: [Text] -> HTTP.Query -> Resource
+resourceURI path query = Resource u
+  where Just u = parseURI'
+               . BL.unpack
+               . Builder.toLazyByteString
+               . mappend baseURI
+               . HTTP.encodePath path
+               $ query
 
 -- | Perform an HTTP request given the method, a URI and an optional body and return the response body as a Conduit source.
 request :: Monad m => HTTP.Method -> URI -> Maybe (C.Source m BS.ByteString) -> FreesoundT m (C.ResumableSource m BS.ByteString)
-request method uri body = do
+request method (URI uri) body = do
   f <- FreesoundT $ R.asks httpRequest
   lift $ f method uri body
