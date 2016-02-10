@@ -48,10 +48,18 @@ search p s fs q =
 search_ :: Monad m => Query -> FreesoundT m Sounds
 search_ = search def def def
 
---geotagged :: ...
+-- | Search for sounds in a certain coordinate region.
+-- geotagged :: ...
 
+-- | Content based search.
+-- contentSearch :: ...
+
+-- Missing: distance field in the response
 getSimilar :: (Sound a, Monad m) => Pagination -> a -> FreesoundT m Sounds
 getSimilar p = getResource . appendQuery p . similarity
 
 getSimilar_ :: (Sound a, Monad m) => a -> FreesoundT m Sounds
 getSimilar_ = getSimilar def
+
+-- getAnalysisStats
+-- getAnalysisFrames

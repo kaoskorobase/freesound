@@ -56,8 +56,9 @@ instance User Detail where
   ref  = ref . summary
   url  = url . summary
 
-textToMaybe :: Text -> Maybe Text
-textToMaybe s
+textToMaybe :: Maybe Text -> Maybe Text
+textToMaybe Nothing = Nothing
+textToMaybe (Just s)
   | T.null s  = Nothing
   | otherwise = Just s
 
@@ -69,7 +70,7 @@ instance FromJSON Detail where
     <*> v .: "packs"
     <*> (textToMaybe <$> (v .: "first_name"))
     <*> (textToMaybe <$> (v .: "last_name"))
-    <*> v .: "about" -- FIXME: Why doesn't return empty string?
+    <*> (textToMaybe <$> (v .: "about"))
     <*> (textToMaybe <$> (v .: "home_page"))
     <*> (textToMaybe <$> (v .: "signature"))
     <*> v .: "date_joined"

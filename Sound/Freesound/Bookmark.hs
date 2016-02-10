@@ -6,14 +6,15 @@ module Sound.Freesound.Bookmark (
 , Category
 , category
 , url
-, bookmarks
+, sounds
+, getSounds
 ) where
 
 import           Control.Applicative ((<$>), (<*>))
 import           Control.Monad (mzero)
 import           Data.Aeson
 import           Data.Text (Text)
-import           Sound.Freesound.API (URI)
+import           Sound.Freesound.API (FreesoundT, Resource, URI, getResource)
 import qualified Sound.Freesound.Sound.Type as Sound
 
 data Bookmark = Bookmark {
@@ -31,7 +32,7 @@ instance FromJSON Bookmark where
 data Category = Category {
   category :: Text
 , url :: URI
-, bookmarks :: URI
+, sounds :: Resource
 } deriving (Eq, Show)
 
 instance FromJSON Category where
@@ -39,5 +40,8 @@ instance FromJSON Category where
     Category
     <$> v .: "name"
     <*> v .: "url"
-    <*> v .: "bookmarks"
+    <*> v .: "sounds"
   parseJSON _ = mzero
+
+getSounds :: Monad m => Category -> FreesoundT m [Bookmark]
+getSounds = getResource . sounds
