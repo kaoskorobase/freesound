@@ -1,28 +1,45 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Sound.Freesound.Sound (
-  SoundId
-, FileType(..)
-, Sound(..)
-, Summary
-, Detail
-, Sounds
-, samplerate
-, bitdepth
-, filesize
-, bitrate
-, channels
-, description
-, license
-, created
-, numComments
-, numDownloads
-, numRatings
-, avgRating
-, geotag
+    SoundId
+  , FileType(..)
+  , Sound(..)
+  , Summary
+  , Detail
+  , Sounds
+  , url
+  , description
+  , geotag
+  , created
+  , sound_license
+  , fileType
+  , channels
+  , filesize
+  , bitrate
+  , bitdepth
+  , duration
+  , samplerate
+  , sound_username
+  , pack
+  , download
+  , bookmark
+  , previews
+  , images
+  , numDownloads
+  , avgRating
+  , numRatings
+  , rate
+  , comments
+  , numComments
+  , comment
+  , similarSounds
+  -- , analysis
+  , analysisStats
+  , analysisFrames
 
-, search
-, search_
-, getSimilar
-, getSimilar_
+  , search
+  , search_
+  , getSimilar
+  , getSimilar_
 ) where
 
 import           Control.Applicative (pure, (<*>))
@@ -40,10 +57,10 @@ search :: Pagination -> Sorting -> Filters -> Query -> Freesound Sounds
 search p s fs q =
     getResource
   $ resourceURI
-    [ T.pack "sounds", T.pack "search" ]
-    (toQuery p ++ toQuery [ pure (,) <*> pure "q" <*> toQueryValue q
-                          , pure (,) <*> pure "f" <*> toQueryValue fs
-                          , pure (,) <*> pure "s" <*> toQueryValue s ])
+    [ "search", "text" ]
+    (toQuery p ++ toQuery [ ("q"::T.Text, toQueryValue q)
+                          , ("f", toQueryValue fs)
+                          , ("s", toQueryValue s) ])
 
 search_ :: Query -> Freesound Sounds
 search_ = search def def def
@@ -55,10 +72,10 @@ search_ = search def def def
 -- contentSearch :: ...
 
 -- Missing: distance field in the response
-getSimilar :: (Sound a) => Pagination -> a -> Freesound Sounds
-getSimilar p = getResource . appendQuery p . similarity
+getSimilar :: Pagination -> Detail -> Freesound Sounds
+getSimilar p = getResource . appendQuery p . similarSounds
 
-getSimilar_ :: (Sound a) => a -> Freesound Sounds
+getSimilar_ :: Detail -> Freesound Sounds
 getSimilar_ = getSimilar def
 
 -- getAnalysisStats
