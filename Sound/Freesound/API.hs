@@ -107,8 +107,8 @@ getResource :: (FromJSON a) => Resource -> Freesound a
 getResource (Resource u) = do
   -- q <- apiKeyQuery
   -- let Resource u = appendQuery q r
-  liftM (handle . J.decode) $ getURI u
-  where handle = maybe (error "Internal error (getResource): JSON decoding failed") id
+  liftM (handle . J.eitherDecode) $ getURI u
+  where handle = either (\e -> error $ "Internal error (getResource): JSON decoding failed: " ++ e) id
 
 -- | The base URI of the Freesound API.
 baseURI :: Builder.Builder
