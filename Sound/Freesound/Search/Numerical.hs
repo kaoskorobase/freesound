@@ -12,7 +12,6 @@ import qualified Data.Time.Clock as Time
 import qualified Data.Time.Format as Time
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Sound.Freesound.Sound.Type (SoundId, soundIdToInteger)
-import qualified System.Locale as Time
 
 -- | Numerical constraint.
 data Numerical a = Equals a | Between a a | GreaterThan a | LessThan a deriving (Eq, Show)

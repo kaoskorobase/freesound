@@ -1,11 +1,11 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving, OverloadedStrings #-}
 module Sound.Freesound.API (
   APIKey
-, HTTPRequest
-, FreesoundT
-, runFreesoundT
-, request
+, apiKeyFromString
+-- , HTTPRequest
+, Freesound
+, runFreesound
+-- , request
 , URI
 , getURI
 , Resource
@@ -17,13 +17,15 @@ module Sound.Freesound.API (
 import qualified Blaze.ByteString.Builder as Builder
 import qualified Blaze.ByteString.Builder.Char8 as Builder
 import           Control.Monad (liftM, mzero)
-import           Control.Monad.Trans.Class (lift)
-import qualified Control.Monad.Trans.Reader as R
+import           Control.Monad.IO.Class (liftIO)
+-- import           Control.Monad.Trans.Class (lift)
+import qualified Control.Monad.Reader as R
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as BL
 import           Data.Aeson as J
 import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
+import           Control.Lens
 import           Data.Monoid (mappend)
 import           Data.Text (Text)
 import qualified Data.Text as T
@@ -32,33 +34,34 @@ import           Control.Monad.Trans.Class (MonadTrans(..))
 --import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import qualified Network.HTTP.Types as HTTP
 import qualified Network.URI as URI
+import qualified Network.Wreq as HTTP
+import qualified Network.Wreq.Lens as HTTP
+import           Network.Wreq.Session (Session)
+import qualified Network.Wreq.Session as Session
 
 -- | API key required for each call to the Freesound server.
-type APIKey = String
+newtype APIKey = APIKey BS.ByteString deriving (Eq, Show)
 
--- | HTTP request function.
-type HTTPRequest m =
-     HTTP.Method
-  -> URI.URI
-  -> Maybe (C.Source m BS.ByteString)
-  -> m (C.ResumableSource m BS.ByteString)
+-- | Construct an API key from a String.
+apiKeyFromString :: String -> APIKey
+apiKeyFromString = APIKey . BS.pack
 
 -- | Reader monad environment.
-data Env m = Env {
-    httpRequest :: HTTPRequest m
-  , apiKey :: APIKey
+data Env = Env {
+    apiKey :: APIKey
+  , session :: Session
   }
 
--- | Freesound API monad transformer for communication with the Freesound server.
-newtype FreesoundT m a = FreesoundT { unFreesoundT :: R.ReaderT (Env m) m a }
-                            deriving (Functor, Monad, MonadIO)
+-- | Freesound API monad for communication with the Freesound server.
+newtype Freesound a = Freesound (R.ReaderT Env IO a)
+                        deriving (Applicative, Functor, Monad, MonadIO, R.MonadReader Env)
 
-instance MonadTrans FreesoundT where
-  lift = FreesoundT . lift
+-- instance MonadTrans Freesound where
+--   lift = Freesound . lift
 
 -- | Perform an API action and return the result.
-runFreesoundT :: HTTPRequest m -> APIKey -> FreesoundT m a -> m a
-runFreesoundT f k = flip R.runReaderT (Env f k) . unFreesoundT
+runFreesound :: APIKey -> Freesound a -> IO a
+runFreesound k (Freesound m) = Session.withAPISession (R.runReaderT m . Env k)
 
 -- | Newtype wrapper of Network.URI.URI to avoid orphan instance.
 newtype URI = URI URI.URI deriving (Eq, Show)
@@ -72,11 +75,14 @@ parseURI' :: String -> Maybe URI
 parseURI' = fmap URI . URI.parseURI . URI.escapeURIString URI.isAllowedInURI
 
 -- | Download the data referred to by a URI.
-getURI :: Monad m => URI -> FreesoundT m BL.ByteString
-getURI u = do
-  s  <- request HTTP.methodGet u Nothing
-  bs <- lift $ s C.$$+- CL.consume
-  return $ BL.fromChunks bs
+getURI :: URI -> Freesound BL.ByteString
+getURI (URI u) = do
+  s <- R.asks session
+  APIKey k <- R.asks apiKey
+  let opts = HTTP.defaults & HTTP.header "Authorization" .~ ["Token " `BS.append` k]
+      u' = URI.uriToString id u ""
+  r <- liftIO $ Session.getWith opts s u'
+  return $ r ^. HTTP.responseBody
 
 -- | Resource URI.
 newtype Resource = Resource URI deriving (Eq, FromJSON, Show)
@@ -91,22 +97,22 @@ appendQuery q (Resource (URI u)) = Resource $ URI $ u { URI.uriQuery = q' }
               ++ HTTP.toQuery q
 
 -- | Create a query item for the API key.
-apiKeyQuery :: Monad m => FreesoundT m HTTP.Query
-apiKeyQuery = do
-  k <- FreesoundT $ R.asks apiKey
-  return $ [(BS.pack "api_key", Just (BS.pack k))]
+-- apiKeyQuery :: Freesound HTTP.Query
+-- apiKeyQuery = do
+--   k <- Freesound $ R.asks apiKey
+--   return $ [("api_key", Just k)]
 
 -- | Download the resource referred to by a URI.
-getResource :: (FromJSON a, Monad m) => Resource -> FreesoundT m a
-getResource r = do
-  q <- apiKeyQuery
-  let Resource u = appendQuery q r
+getResource :: (FromJSON a) => Resource -> Freesound a
+getResource (Resource u) = do
+  -- q <- apiKeyQuery
+  -- let Resource u = appendQuery q r
   liftM (handle . J.decode) $ getURI u
   where handle = maybe (error "Internal error (getResource): JSON decoding failed") id
 
 -- | The base URI of the Freesound API.
 baseURI :: Builder.Builder
-baseURI = Builder.fromString "http://freesound.org/api"
+baseURI = Builder.fromString "http://www.freesound.org/apiv2"
 
 -- | Construct an API uri from path components and a query.
 resourceURI :: [Text] -> HTTP.Query -> Resource
@@ -119,7 +125,7 @@ resourceURI path query = Resource u
                $ query
 
 -- | Perform an HTTP request given the method, a URI and an optional body and return the response body as a Conduit source.
-request :: Monad m => HTTP.Method -> URI -> Maybe (C.Source m BS.ByteString) -> FreesoundT m (C.ResumableSource m BS.ByteString)
-request method (URI uri) body = do
-  f <- FreesoundT $ R.asks httpRequest
-  lift $ f method uri body
+-- request :: Monad m => HTTP.Method -> URI -> Maybe (C.Source m BS.ByteString) -> FreesoundT m (C.ResumableSource m BS.ByteString)
+-- request method (URI uri) body = do
+--   f <- FreesoundT $ R.asks httpRequest
+--   lift $ f method uri body

@@ -14,7 +14,7 @@ import           Control.Applicative ((<$>), (<*>))
 import           Control.Monad (mzero)
 import           Data.Aeson
 import           Data.Text (Text)
-import           Sound.Freesound.API (FreesoundT, Resource, URI, getResource)
+import           Sound.Freesound.API (Freesound, Resource, URI, getResource)
 import qualified Sound.Freesound.Sound.Type as Sound
 
 data Bookmark = Bookmark {
@@ -43,5 +43,5 @@ instance FromJSON Category where
     <*> v .: "sounds"
   parseJSON _ = mzero
 
-getSounds :: Monad m => Category -> FreesoundT m [Bookmark]
+getSounds :: Category -> Freesound [Bookmark]
 getSounds = getResource . sounds

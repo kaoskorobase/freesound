@@ -26,12 +26,11 @@ module Sound.Freesound
 , getSimilar
 , getSimilar_
   -- * Freesound API monad
-, FreesoundT
-, runFreesoundT
+, module Sound.Freesound.API
 )
 where
 
-import Sound.Freesound.API (FreesoundT, runFreesoundT)
+import Sound.Freesound.API (Freesound, runFreesound, APIKey, apiKeyFromString)
 import Sound.Freesound.List
 import Sound.Freesound.Search
 import Sound.Freesound.Search.Query

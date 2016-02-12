@@ -32,11 +32,11 @@ import           Network.HTTP.Types.QueryLike (toQuery, toQueryValue)
 import           Sound.Freesound.List (List)
 import           Sound.Freesound.Search (Filters, Pagination, Query, Sorting)
 import           Sound.Freesound.Sound.Type
-import           Sound.Freesound.API (FreesoundT, appendQuery, getResource, resourceURI)
+import           Sound.Freesound.API (Freesound, appendQuery, getResource, resourceURI)
 
 type Sounds = List Summary
 
-search :: Monad m => Pagination -> Sorting -> Filters -> Query -> FreesoundT m Sounds
+search :: Pagination -> Sorting -> Filters -> Query -> Freesound Sounds
 search p s fs q =
     getResource
   $ resourceURI
@@ -45,7 +45,7 @@ search p s fs q =
                           , pure (,) <*> pure "f" <*> toQueryValue fs
                           , pure (,) <*> pure "s" <*> toQueryValue s ])
 
-search_ :: Monad m => Query -> FreesoundT m Sounds
+search_ :: Query -> Freesound Sounds
 search_ = search def def def
 
 -- | Search for sounds in a certain coordinate region.
@@ -55,10 +55,10 @@ search_ = search def def def
 -- contentSearch :: ...
 
 -- Missing: distance field in the response
-getSimilar :: (Sound a, Monad m) => Pagination -> a -> FreesoundT m Sounds
+getSimilar :: (Sound a) => Pagination -> a -> Freesound Sounds
 getSimilar p = getResource . appendQuery p . similarity
 
-getSimilar_ :: (Sound a, Monad m) => a -> FreesoundT m Sounds
+getSimilar_ :: (Sound a) => a -> Freesound Sounds
 getSimilar_ = getSimilar def
 
 -- getAnalysisStats
