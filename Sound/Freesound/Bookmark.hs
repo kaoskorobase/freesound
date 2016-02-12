@@ -15,6 +15,7 @@ import           Control.Monad (mzero)
 import           Data.Aeson
 import           Data.Text (Text)
 import           Sound.Freesound.API (Freesound, Resource, URI, getResource)
+import           Sound.Freesound.List (List)
 import qualified Sound.Freesound.Sound.Type as Sound
 
 data Bookmark = Bookmark {
@@ -32,7 +33,7 @@ instance FromJSON Bookmark where
 data Category = Category {
   category :: Text
 , url :: URI
-, sounds :: Resource
+, sounds :: Resource [Bookmark]
 } deriving (Eq, Show)
 
 instance FromJSON Category where

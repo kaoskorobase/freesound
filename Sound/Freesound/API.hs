@@ -85,10 +85,10 @@ getURI (URI u) = do
   return $ r ^. HTTP.responseBody
 
 -- | Resource URI.
-newtype Resource = Resource URI deriving (Eq, FromJSON, Show)
+newtype Resource a = Resource URI deriving (Eq, FromJSON, Show)
 
 -- | Append a query string to a resource URI.
-appendQuery :: HTTP.QueryLike a => a -> Resource -> Resource
+appendQuery :: HTTP.QueryLike a => a -> Resource r -> Resource r
 appendQuery q (Resource (URI u)) = Resource $ URI $ u { URI.uriQuery = q' }
   where q' = BS.unpack
            $ Builder.toByteString
@@ -103,7 +103,7 @@ appendQuery q (Resource (URI u)) = Resource $ URI $ u { URI.uriQuery = q' }
 --   return $ [("api_key", Just k)]
 
 -- | Download the resource referred to by a URI.
-getResource :: (FromJSON a) => Resource -> Freesound a
+getResource :: (FromJSON a) => Resource a -> Freesound a
 getResource (Resource u) = do
   -- q <- apiKeyQuery
   -- let Resource u = appendQuery q r
@@ -115,7 +115,7 @@ baseURI :: Builder.Builder
 baseURI = Builder.fromString "http://www.freesound.org/apiv2"
 
 -- | Construct an API uri from path components and a query.
-resourceURI :: [Text] -> HTTP.Query -> Resource
+resourceURI :: [Text] -> HTTP.Query -> Resource a
 resourceURI path query = Resource u
   where Just u = parseURI'
                . BL.unpack

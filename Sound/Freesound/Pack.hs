@@ -3,7 +3,7 @@ module Sound.Freesound.Pack (
 , Packs
 , Summary
 , Detail
-, user
+, username
 , getSounds
 , getSounds_
 ) where

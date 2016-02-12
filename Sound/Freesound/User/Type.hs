@@ -7,20 +7,24 @@ import           Data.Aeson (FromJSON(..), Value(..), (.:))
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Sound.Freesound.API (Resource, URI)
+import qualified Sound.Freesound.Bookmark.Internal as Bookmark
+import           Sound.Freesound.List (List)
+import qualified Sound.Freesound.Pack.Type as Pack
+import qualified Sound.Freesound.Sound.Type as Sound
 
 -- | User of the Freesound database.
 class User a where
   -- | The user’s username.
   name :: a -> Text
   -- | The URI for this resource.
-  ref :: a -> Resource
+  ref :: a -> Resource Detail
   -- | The profile page for the user on the Freesound website.
   url :: a -> URI
 
 -- | User of the Freesound database.
 data Summary = Summary {
   user_name :: Text     -- ^ The user’s username.
-, user_ref  :: Resource -- ^ The URI for this resource.
+, user_ref  :: Resource Detail -- ^ The URI for this resource.
 , user_url :: URI       -- ^ The profile page for the user on the Freesound website.
 } deriving (Eq, Show)
 
@@ -39,8 +43,8 @@ instance FromJSON Summary where
 
 data Detail = Detail {
   summary :: Summary                -- ^ Summary.
-, sounds :: Resource                -- ^ The API URI for this user’s sound collection.
-, packs :: Resource                 -- ^ The API URI for this user’s pack collection.
+, sounds :: Resource (List Sound.Summary)                -- ^ The API URI for this user’s sound collection.
+, packs :: Resource (List Pack.Summary)                -- ^ The API URI for this user’s pack collection.
 , firstName :: Maybe Text           -- ^ The user’s first name, possibly empty.
 , lastName :: Maybe Text            -- ^ The user’s last name, possibly empty.
 , about :: Maybe Text               -- ^ A small text the user wrote about himself.
@@ -48,7 +52,7 @@ data Detail = Detail {
 , homePage :: Maybe Text            -- ^ The user’s homepage, possibly empty.
 , signature :: Maybe Text           -- ^ The user’s signature, possibly empty.
 , dateJoined :: Text                -- ^ The date the user joined Freesound.
-, bookmarkCategories :: Resource
+, bookmarkCategories :: Resource Bookmark.Categories
 } deriving (Eq, Show)
 
 instance User Detail where

@@ -6,16 +6,16 @@ import           Control.Monad (mzero)
 import           Data.Aeson (FromJSON(..), Value(..), (.:))
 import           Data.Text (Text)
 import           Sound.Freesound.API (Resource, URI)
-import           Sound.Freesound.List (Elem(..))
-import qualified Sound.Freesound.User.Type as User
+import           Sound.Freesound.List (List, Elem(..))
+import qualified Sound.Freesound.Sound as Sound
 
 class Pack a where
   -- | The URI for this resource.
-  ref :: a -> Resource
+  ref :: a -> Resource ()
   -- | The URL for this pack’s page on the Freesound website.
   url :: a -> URI
   -- | The API URI for the pack’s sound collection.
-  sounds :: a -> Resource
+  sounds :: a -> Resource (List Sound.Summary)
   -- | The pack’s name.
   name :: a -> Text
   -- | The date when the pack was created.
@@ -24,9 +24,9 @@ class Pack a where
   numDownloads :: a -> Integer
 
 data Summary = Summary {
-  pack_ref :: Resource              -- ^ The URI for this resource.
+  pack_ref :: Resource ()             -- ^ The URI for this resource.
 , pack_url :: URI                   -- ^ The URL for this pack’s page on the Freesound website.
-, pack_sounds :: Resource           -- ^ The API URI for the pack’s sound collection.
+, pack_sounds :: Resource (List Sound.Summary)           -- ^ The API URI for the pack’s sound collection.
 , pack_name :: Text                 -- ^ The pack’s name.
 , pack_created :: Text              -- ^ The date when the pack was created.
 , pack_num_downloads :: Integer     -- ^ The number of times the pack was downloaded.
@@ -56,7 +56,7 @@ instance Elem Summary where
 
 data Detail = Detail {
   summary :: Summary
-, user :: User.Summary         -- ^ A JSON object with the user’s username, url, and ref.
+, username :: Text         -- ^ A JSON object with the user’s username, url, and ref.
 } deriving (Eq, Show)
 
 instance Pack Detail where
@@ -71,5 +71,5 @@ instance FromJSON Detail where
   parseJSON v@(Object o) =
     Detail
     <$> parseJSON v
-    <*> o .: "user"
+    <*> o .: "username"
   parseJSON _ = mzero

@@ -10,8 +10,8 @@ import qualified Data.Text as T
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
 import           Sound.Freesound.API (Resource, URI)
-import           Sound.Freesound.List (Elem(..))
-import qualified Sound.Freesound.User.Type as User
+import           Sound.Freesound.List (List, Elem(..))
+-- import qualified Sound.Freesound.User.Type as User
 
 newtype SoundId = SoundId Integer
                   deriving (Eq, Ord, Show)
@@ -125,7 +125,7 @@ data Detail = Detail {
   , duration            :: Double       -- ^ The duration of the sound in seconds.
   , samplerate          :: Int          -- ^ The samplerate of the sound.
   , sound_username      :: Text         -- ^ The username of the uploader of the sound.
-  , pack                :: Maybe Resource -- ^ If the sound is part of a pack, this URI points to that pack’s API resource.
+  , pack                :: Maybe (Resource ()) -- ^ If the sound is part of a pack, this URI points to that pack’s API resource.
   , download            :: URI          -- ^ The URI for retrieving the original sound.
   , bookmark            :: URI          -- ^ The URI for bookmarking the sound.
   , previews            :: Previews     -- ^ Dictionary containing the URIs for mp3 and ogg versions of the sound. The dictionary includes the fields preview-hq-mp3 and preview-lq-mp3 (for ~128kbps quality and ~64kbps quality mp3 respectively), and preview-hq-ogg and preview-lq-ogg (for ~192kbps quality and ~80kbps quality ogg respectively).
@@ -134,13 +134,13 @@ data Detail = Detail {
   , avgRating           :: Double       -- ^ The average rating of the sound.
   , numRatings          :: Integer      -- ^ The number of times the sound was rated.
   , rate                :: URI          -- ^ The URI for rating the sound.
-  , comments            :: Resource     -- ^ The URI of a paginated list of the comments of the sound.
+  , comments            :: Resource ()     -- ^ The URI of a paginated list of the comments of the sound.
   , numComments         :: Integer      -- ^ The number of comments.
   , comment             :: URI          -- ^ The URI to comment the sound.
-  , similarSounds       :: Resource     -- ^ URI pointing to the similarity resource (to get a list of similar sounds).
+  , similarSounds       :: Resource (List Summary)     -- ^ URI pointing to the similarity resource (to get a list of similar sounds).
   -- , analysis            :: Maybe
-  , analysisStats       :: Resource     -- ^ URI pointing to the complete analysis results of the sound.
-  , analysisFrames      :: Resource     -- ^ The URI for retrieving a JSON file with analysis information for each frame of the sound.
+  , analysisStats       :: Resource ()     -- ^ URI pointing to the complete analysis results of the sound.
+  , analysisFrames      :: Resource ()    -- ^ The URI for retrieving a JSON file with analysis information for each frame of the sound.
   } deriving (Eq, Show)
 
 instance FromJSON Detail where
