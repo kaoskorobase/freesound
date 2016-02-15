@@ -6,15 +6,17 @@ module Sound.Freesound.Search (
   , unsorted
   , sortedBy
   , Pagination(..)
+  , module Sound.Freesound.Search.Filter
+  , module Sound.Freesound.Search.Numerical
   , module Sound.Freesound.Search.Query
-  , Filters
 ) where
 
 import qualified Data.ByteString.Char8 as BS
 import           Data.Default (Default(..))
 import           Network.HTTP.Types.QueryLike (QueryLike(..), QueryValueLike(..))
-import           Sound.Freesound.Search.Filter (Filters)
-import           Sound.Freesound.Search.Query (Query, include, exclude, (&))
+import           Sound.Freesound.Search.Filter
+import           Sound.Freesound.Search.Numerical
+import           Sound.Freesound.Search.Query
 
 data SortMethod    = Duration | Created | Downloads | Rating deriving (Eq, Show)
 data SortDirection = Ascending | Descending deriving (Eq, Show)
@@ -37,7 +39,7 @@ instance QueryValueLike Sorting where
   toQueryValue (SortedBy Created Descending)   = Just $ BS.pack "created_desc"
   toQueryValue (SortedBy Downloads Ascending)  = Just $ BS.pack "downloads_asc"
   toQueryValue (SortedBy Downloads Descending) = Just $ BS.pack "downloads_desc"
-  toQueryValue (SortedBy Rating Ascending)     = Just $ BS.pack "rating_asc"  
+  toQueryValue (SortedBy Rating Ascending)     = Just $ BS.pack "rating_asc"
   toQueryValue (SortedBy Rating Descending)    = Just $ BS.pack "rating_desc"
 
 data Pagination = Pagination {

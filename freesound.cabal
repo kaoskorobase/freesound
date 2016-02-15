@@ -16,13 +16,14 @@ author:             Stefan Kersten <kaoskorobase@gmail.com>
 maintainer:         Stefan Kersten <kaoskorobase@gmail.com>
 stability:          experimental
 homepage:           https://github.com/kaoskorobase/freesound
-tested-with:        GHC == 6.10.1, GHC == 6.10.4, GHC == 6.12.1
+tested-with:        GHC == 6.10.1, GHC == 6.10.4, GHC == 6.12.1, GHC == 7.10.3
 build-type:         Simple
-cabal-version:      >= 1.2
+cabal-version:      >= 1.8
 
 library
   exposed-modules:  Sound.Freesound
                     Sound.Freesound.Bookmark
+                    Sound.Freesound.List
                     Sound.Freesound.Pack
                     Sound.Freesound.Search
                     Sound.Freesound.Search.Filter
@@ -61,3 +62,13 @@ library
 -- executable freesound
 --   hs-source-dirs:   ., freesound
 --   main-is:          Main.hs
+
+test-suite spec
+  type:             exitcode-stdio-1.0
+  ghc-options:      -Wall
+  hs-source-dirs:   test
+  main-is:          Spec.hs
+  build-depends:    base == 4.*
+                  , data-default
+                  , freesound
+                  , hspec
