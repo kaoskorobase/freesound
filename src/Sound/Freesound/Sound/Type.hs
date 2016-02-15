@@ -220,5 +220,5 @@ data GeoTag = GeoTag {
 } deriving (Eq, Show)
 
 instance FromJSON GeoTag where
-  parseJSON (String x) = pure (GeoTag 0 0)
+  parseJSON (String _) = pure (GeoTag 0 0)
   parseJSON _ = fail "Couldn't parse GeoTag"
