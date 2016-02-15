@@ -55,6 +55,7 @@ library
                   , time >= 1.2
                   , transformers >= 0.3
                   , wreq
+  hs-source-dirs:   src
   Ghc-Options:      -Wall
 
 -- executable freesound
