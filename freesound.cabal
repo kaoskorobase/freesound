@@ -11,9 +11,9 @@ description:        Access the Freesound Project database. The Freesound
 license:            BSD3
 license-file:       LICENSE
 category:           Sound, Web
-copyright:          Copyright (c) Stefan Kersten 2008-2012
-author:             Stefan Kersten <sk@k-hornz.de>
-maintainer:         Stefan Kersten <sk@k-hornz.de>
+copyright:          Copyright (c) Stefan Kersten 2008-2016
+author:             Stefan Kersten <kaoskorobase@gmail.com>
+maintainer:         Stefan Kersten <kaoskorobase@gmail.com>
 stability:          experimental
 homepage:           https://github.com/kaoskorobase/freesound
 tested-with:        GHC == 6.10.1, GHC == 6.10.4, GHC == 6.12.1
