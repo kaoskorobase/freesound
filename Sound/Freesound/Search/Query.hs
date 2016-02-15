@@ -18,7 +18,7 @@ instance QueryValueLike Query where
 			quote t
 				| Text.any isSpace t = Text.cons '"' (Text.snoc t '"')
 				| otherwise = t
-			f (Include t) = quote t
+			f (Include t) = Text.cons '+' (quote t)
 			f (Exclude t) = Text.cons '-' (quote t)
 
 data Term = Include Text | Exclude Text deriving (Eq, Show)
