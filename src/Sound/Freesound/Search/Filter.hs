@@ -53,17 +53,17 @@ instance QueryValueLike F_Bool where
   toQueryValue (F_Bool False) = toQueryValue $ BS.pack "false"
 
 data Filter =
-	  F_id (Numerical SoundId)	-- integer, sound id on freesound
-  | F_username Text	-- string, not tokenized
-  | F_created Text	-- date
-  | F_original_filename Text --	string, tokenized
+    F_id (Numerical SoundId)  -- integer, sound id on freesound
+  | F_username Text  -- string, not tokenized
+  | F_created Text  -- date
+  | F_original_filename Text --  string, tokenized
   | F_description Text -- string, tokenized
   | F_tag Text
   | F_license License
   | F_is_remix F_Bool
   | F_was_remixed F_Bool
   | F_pack Text
-	--pack_tokenized:	string, tokenized
+  --pack_tokenized:  string, tokenized
   | F_is_geotagged F_Bool
   | F_type FileType
   | F_duration (Numerical Double) -- duration of sound in seconds
