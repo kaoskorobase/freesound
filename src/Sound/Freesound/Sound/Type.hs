@@ -6,7 +6,6 @@ import           Control.Monad (mzero)
 import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?))
 import qualified Data.ByteString.Char8 as BS
 import           Data.Text (Text)
-import qualified Data.Text as T
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
 import           Sound.Freesound.API (Resource, URI)

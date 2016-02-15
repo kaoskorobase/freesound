@@ -17,23 +17,17 @@ module Sound.Freesound.API (
 import qualified Blaze.ByteString.Builder as Builder
 import qualified Blaze.ByteString.Builder.Char8 as Builder
 import           Control.Monad (liftM, mzero)
-import           Control.Monad.IO.Class (liftIO)
--- import           Control.Monad.Trans.Class (lift)
+import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Control.Monad.Reader as R
+import           Control.Lens
+import           Data.Aeson as J
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as BL
-import           Data.Aeson as J
-import           Control.Lens
-import           Data.Monoid (mappend)
 import           Data.Text (Text)
 import qualified Data.Text as T
-import           Control.Monad.IO.Class (MonadIO)
-import           Control.Monad.Trans.Class (MonadTrans(..))
---import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import qualified Network.HTTP.Types as HTTP
 import qualified Network.URI as URI
 import qualified Network.Wreq as HTTP
-import qualified Network.Wreq.Lens as HTTP
 import           Network.Wreq.Session (Session)
 import qualified Network.Wreq.Session as Session
 
