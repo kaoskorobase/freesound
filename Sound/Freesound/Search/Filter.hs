@@ -25,6 +25,7 @@ module Sound.Freesound.Search.Filter (
 , numRatings
 , comment
 , comments
+, module Sound.Freesound.Search.Numerical
 ) where
 
 import           Data.Default (Default(..))
@@ -35,7 +36,7 @@ import           Data.Maybe (mapMaybe)
 import           Data.Text (Text)
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
-import           Sound.Freesound.Search.Numerical (Numerical)
+import           Sound.Freesound.Search.Numerical
 import           Sound.Freesound.Sound.Type (FileType, SoundId)
 
 data License = Attribution | AttributionNoncommercial | CreativeCommons0 deriving (Eq, Show)
