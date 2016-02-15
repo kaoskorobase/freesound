@@ -40,14 +40,10 @@ library
                   , aeson >= 0.6
                   , blaze-builder >= 0.3
                   , bytestring >= 0.9
-                  , conduit >= 0.5
                   , data-default >= 0.5
-                  -- , failure >= 0.2
                   , filepath >= 1.2
-                  , http-conduit >= 1.6
                   , http-types >= 0.7
                   , lens
-                  , monad-control >= 0.3
                   , mtl
                   , network >= 2.4
                   , network-uri

@@ -23,8 +23,6 @@ import qualified Control.Monad.Reader as R
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as BL
 import           Data.Aeson as J
-import qualified Data.Conduit as C
-import qualified Data.Conduit.List as CL
 import           Control.Lens
 import           Data.Monoid (mappend)
 import           Data.Text (Text)
