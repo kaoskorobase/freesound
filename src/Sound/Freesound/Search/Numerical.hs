@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Sound.Freesound.Search.Numerical (
   Numerical
 , equals
@@ -12,6 +13,12 @@ import qualified Data.Time.Clock as Time
 import qualified Data.Time.Format as Time
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Sound.Freesound.Sound.Type (SoundId, soundIdToInteger)
+
+#if __GLASGOW_HASKELL__ < 710
+import           System.Locale (defaultTimeLocale)
+#else
+import           Data.Time (defaultTimeLocale)
+#endif
 
 -- | Numerical constraint.
 data Numerical a = Equals a | Between a a | GreaterThan a | LessThan a deriving (Eq, Show)
@@ -29,7 +36,7 @@ instance NumericalQueryValue SoundId where
   toNumericalQueryValue = BS.pack . show . soundIdToInteger
 
 instance NumericalQueryValue Time.UTCTime where
-  toNumericalQueryValue = BS.pack . Time.formatTime Time.defaultTimeLocale "%FT%H:%M:%S%QZ"
+  toNumericalQueryValue = BS.pack . Time.formatTime defaultTimeLocale "%FT%H:%M:%S%QZ"
 
 equals :: a -> Numerical a
 equals = Equals
