@@ -1,9 +1,9 @@
 sudo: false
 language: haskell
 ghc:
-- '7.4'
-- '7.8'
-- '7.10'
+- '7.4.2'
+- '7.8.4'
+- '7.10.3'
 env:
   global:
     secure: KvoXVlP2upFU7hWrg9yyWL98/AjgN9lZYDgKtUuMhfIRQ24eQp5X3xmOJRBASTTW1iVeAsfFVag6+Ak0V5tTAKuwyGeaXoEMX5IchFlVF8R5MpyoyjTUDs5rJsDeaD+qMiLTrmmyf4hQ6pI+E7aEGKXhW0wcuVdYP8RZrXw7HQE=
