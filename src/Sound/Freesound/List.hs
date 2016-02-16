@@ -1,5 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE CPP, OverloadedStrings, ScopedTypeVariables #-}
 module Sound.Freesound.List (
   List
 , Elem(..)
@@ -11,11 +10,14 @@ module Sound.Freesound.List (
 , getNext
 ) where
 
-import Control.Applicative ((<$>), (<*>))
 import Control.Monad (liftM, mzero)
 import Data.Aeson
 import Data.Text (Text)
 import Sound.Freesound.API (Freesound, Resource, getResource)
+
+#if __GLASGOW_HASKELL__ < 710
+import           Control.Applicative
+#endif
 
 data List a = List {
   elems    :: [a]

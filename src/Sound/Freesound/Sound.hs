@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 module Sound.Freesound.Sound (
     SoundId
   , FileType(..)
@@ -42,7 +42,6 @@ module Sound.Freesound.Sound (
   , getSimilar_
 ) where
 
-import           Control.Applicative (pure, (<*>))
 import           Data.Default (def)
 import qualified Data.Text as T
 import           Network.HTTP.Types.QueryLike (toQuery, toQueryValue)
@@ -50,6 +49,10 @@ import           Sound.Freesound.List (List)
 import           Sound.Freesound.Search (Filters, Pagination, Query, Sorting)
 import           Sound.Freesound.Sound.Type
 import           Sound.Freesound.API (Freesound, appendQuery, getResource, resourceURI)
+
+#if __GLASGOW_HASKELL__ < 710
+import           Control.Applicative
+#endif
 
 type Sounds = List Summary
 

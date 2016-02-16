@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 module Sound.Freesound.Bookmark (
   Bookmark
 , sound
@@ -10,13 +10,15 @@ module Sound.Freesound.Bookmark (
 , getSounds
 ) where
 
-import           Control.Applicative ((<$>), (<*>))
 import           Control.Monad (mzero)
 import           Data.Aeson
 import           Data.Text (Text)
 import           Sound.Freesound.API (Freesound, Resource, URI, getResource)
-import           Sound.Freesound.List (List)
 import qualified Sound.Freesound.Sound.Type as Sound
+
+#if __GLASGOW_HASKELL__ < 710
+import           Control.Applicative
+#endif
 
 data Bookmark = Bookmark {
   sound :: Sound.Summary

@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 module Sound.Freesound.Search.Filter (
   Filters
 , id
@@ -28,7 +28,6 @@ module Sound.Freesound.Search.Filter (
 ) where
 
 import           Data.Default (Default(..))
-import           Data.Monoid (Monoid(..))
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Maybe (mapMaybe)
@@ -37,6 +36,10 @@ import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
 import           Sound.Freesound.Search.Numerical (Numerical)
 import           Sound.Freesound.Sound.Type (FileType, SoundId)
+
+#if __GLASGOW_HASKELL__ < 710
+import           Data.Monoid (Monoid(..))
+#endif
 
 data License = Attribution | AttributionNoncommercial | CreativeCommons0 deriving (Eq, Show)
 

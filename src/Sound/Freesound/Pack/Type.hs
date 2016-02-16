@@ -1,13 +1,16 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 module Sound.Freesound.Pack.Type where
 
-import           Control.Applicative ((<$>), (<*>))
 import           Control.Monad (mzero)
 import           Data.Aeson (FromJSON(..), Value(..), (.:))
 import           Data.Text (Text)
 import           Sound.Freesound.API (Resource, URI)
 import           Sound.Freesound.List (List, Elem(..))
 import qualified Sound.Freesound.Sound as Sound
+
+#if __GLASGOW_HASKELL__ < 710
+import           Control.Applicative
+#endif
 
 class Pack a where
   -- | The URI for this resource.

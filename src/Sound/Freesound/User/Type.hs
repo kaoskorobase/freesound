@@ -1,7 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 module Sound.Freesound.User.Type where
 
-import           Control.Applicative ((<$>), (<*>))
 import           Control.Monad (mzero)
 import           Data.Aeson (FromJSON(..), Value(..), (.:))
 import           Data.Text (Text)
@@ -11,6 +10,10 @@ import qualified Sound.Freesound.Bookmark.Internal as Bookmark
 import           Sound.Freesound.List (List)
 import qualified Sound.Freesound.Pack.Type as Pack
 import qualified Sound.Freesound.Sound.Type as Sound
+
+#if __GLASGOW_HASKELL__ < 710
+import           Control.Applicative
+#endif
 
 -- | User of the Freesound database.
 class User a where
