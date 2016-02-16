@@ -6,3 +6,11 @@ ghc:
 env:
   global:
     secure: KvoXVlP2upFU7hWrg9yyWL98/AjgN9lZYDgKtUuMhfIRQ24eQp5X3xmOJRBASTTW1iVeAsfFVag6+Ak0V5tTAKuwyGeaXoEMX5IchFlVF8R5MpyoyjTUDs5rJsDeaD+qMiLTrmmyf4hQ6pI+E7aEGKXhW0wcuVdYP8RZrXw7HQE=
+deploy:
+  provider: hackage
+  username: StefanKersten
+  password:
+    secure: briz7H53NBiI44chLXZzyqI1mwrL9RPoo5aGE1IDS0MjvA52SMKMt4wmqGorFVJzV8LnePEaf+xYLCuXcsbMQxCSJR0/gXedOAtKe3YpFfce5Uy5YfPh86bzTQvs2Z3E8L3g0uBAtfalRJDpjxzwnfvWPHlcpGEQ8/VDwDxxdX8=
+  on:
+    repo: kaoskorobase/freesound
+    branch: master
