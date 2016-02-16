@@ -11,7 +11,6 @@ module Sound.Freesound.List (
 
 import Control.Monad (liftM, mzero)
 import Data.Aeson
-import Data.Text (Text)
 import Sound.Freesound.API (Freesound, Resource, getResource)
 
 #if __GLASGOW_HASKELL__ < 710
