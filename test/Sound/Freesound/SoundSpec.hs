@@ -19,4 +19,4 @@ spec = do
       fs (allSatisfy p =<< search def def (username "k0s") (include "spank")) `shouldReturn` True
     it "paginates" $ do
       l <- fs $ search (Pagination 0 1) def def ""
-      numElems l `shouldBe` 1
+      length (elems l) `shouldBe` 1
