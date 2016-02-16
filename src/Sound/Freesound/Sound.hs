@@ -41,9 +41,10 @@ module Sound.Freesound.Sound (
   , getSimilar_
 ) where
 
+import qualified Data.ByteString as B
 import           Data.Default (def)
 import qualified Data.Text as T
-import           Network.HTTP.Types.QueryLike (toQuery, toQueryValue)
+import           Network.HTTP.Types.QueryLike (QueryLike(..), QueryValueLike(..))
 import           Sound.Freesound.List (List)
 import           Sound.Freesound.Search (Filters, Pagination, Query, Sorting)
 import           Sound.Freesound.Sound.Type
@@ -58,9 +59,13 @@ search p s fs q =
     getResource
   $ resourceURI
     [ "search", "text" ]
-    (toQuery p ++ toQuery [ ("q"::T.Text, toQueryValue q)
-                          , ("f", toQueryValue fs)
-                          , ("s", toQueryValue s) ])
+    (toQuery p ++ toQuery [ pair "query" q
+                          , pair "filter" fs
+                          , pair "sort" s ])
+                          -- TODO: group_by_pack (changes response type)
+  where
+    pair :: QueryValueLike a => T.Text -> a -> Maybe (T.Text, B.ByteString)
+    pair k a = (,) <$> pure k <*> toQueryValue a
 
 search_ :: Query -> Freesound (List Summary)
 search_ = search def def def
