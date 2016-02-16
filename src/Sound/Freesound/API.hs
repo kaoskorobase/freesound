@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving, OverloadedStrings #-}
+{-# LANGUAGE CPP, FlexibleInstances, GeneralizedNewtypeDeriving, OverloadedStrings #-}
 module Sound.Freesound.API (
   APIKey
 , apiKeyFromString
@@ -30,6 +30,11 @@ import qualified Network.URI as URI
 import qualified Network.Wreq as HTTP
 import           Network.Wreq.Session (Session)
 import qualified Network.Wreq.Session as Session
+
+#if __GLASGOW_HASKELL__ < 710
+import           Control.Applicative
+import           Data.Monoid
+#endif
 
 -- | API key required for each call to the Freesound server.
 newtype APIKey = APIKey BS.ByteString deriving (Eq, Show)
