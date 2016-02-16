@@ -29,7 +29,7 @@ data List a = List {
 class Elem a where
   elemsFieldName :: a -> Text
 
-instance (Elem a, FromJSON a) => FromJSON (List a) where
+instance FromJSON a => FromJSON (List a) where
   parseJSON (Object v) =
     List
       <$> v .: "results"
@@ -38,8 +38,8 @@ instance (Elem a, FromJSON a) => FromJSON (List a) where
       <*> v .:? "next"
   parseJSON _ = mzero
 
-getPrevious :: (Elem a, FromJSON a) => List a -> Freesound (Maybe (List a))
+getPrevious :: FromJSON a => List a -> Freesound (Maybe (List a))
 getPrevious = maybe (return Nothing) (liftM Just . getResource) . previous
 
-getNext :: (Elem a, FromJSON a) => List a -> Freesound (Maybe (List a))
+getNext :: FromJSON a => List a -> Freesound (Maybe (List a))
 getNext = maybe (return Nothing) (liftM Just . getResource) . next
