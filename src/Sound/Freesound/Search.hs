@@ -44,7 +44,7 @@ instance QueryValueLike Sorting where
 
 data Pagination = Pagination {
   page :: Int
-, resultsPerPage :: Int
+, pageSize :: Int
 } deriving (Eq, Show)
 
 instance Default Pagination where
@@ -53,7 +53,7 @@ instance Default Pagination where
 instance QueryLike Pagination where
   toQuery a = toQuery [ if page def == page a
                         then Nothing
-                        else Just (BS.pack "p", show (page a + 1))
-                      , if resultsPerPage def == resultsPerPage a
+                        else Just (BS.pack "page", show (page a + 1))
+                      , if pageSize def == pageSize a
                         then Nothing
-                        else Just (BS.pack "sounds_per_page", show (resultsPerPage a)) ]
+                        else Just (BS.pack "page_size", show (pageSize a)) ]
