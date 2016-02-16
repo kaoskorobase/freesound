@@ -37,8 +37,6 @@ module Sound.Freesound.Sound (
 
   , search
   , search_
-  , getSimilar
-  , getSimilar_
 ) where
 
 import qualified Data.ByteString as B
@@ -48,7 +46,7 @@ import           Network.HTTP.Types.QueryLike (QueryLike(..), QueryValueLike(..)
 import           Sound.Freesound.List (List)
 import           Sound.Freesound.Search (Filters, Pagination, Query, Sorting)
 import           Sound.Freesound.Sound.Type
-import           Sound.Freesound.API (Freesound, appendQuery, getResource, resourceURI)
+import           Sound.Freesound.API (Freesound, getResource, resourceURI)
 
 #if __GLASGOW_HASKELL__ < 710
 import           Control.Applicative
@@ -69,19 +67,3 @@ search p s fs q =
 
 search_ :: Query -> Freesound (List Summary)
 search_ = search def def def
-
--- | Search for sounds in a certain coordinate region.
--- geotagged :: ...
-
--- | Content based search.
--- contentSearch :: ...
-
--- Missing: distance field in the response
-getSimilar :: Pagination -> Detail -> Freesound (List Summary)
-getSimilar p = getResource . appendQuery p . similarSounds
-
-getSimilar_ :: Detail -> Freesound (List Summary)
-getSimilar_ = getSimilar def
-
--- getAnalysisStats
--- getAnalysisFrames

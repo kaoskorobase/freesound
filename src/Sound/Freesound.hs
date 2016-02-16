@@ -23,8 +23,6 @@ module Sound.Freesound
   -- * Sounds
 , search
 , search_
-, getSimilar
-, getSimilar_
   -- * Freesound API monad
 , module Sound.Freesound.API
 )
