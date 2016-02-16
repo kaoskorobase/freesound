@@ -13,12 +13,12 @@ import Sound.Freesound.API (Freesound, appendQuery, getResource)
 import Sound.Freesound.List (List)
 import Sound.Freesound.Pack.Type
 import Sound.Freesound.Search (Pagination)
-import Sound.Freesound.Sound (Sounds)
+import qualified Sound.Freesound.Sound as Sound
 
 type Packs = List Summary
 
-getSounds :: (Pack a) => Pagination -> a -> Freesound Sounds
+getSounds :: (Pack a) => Pagination -> a -> Freesound (List Sound.Summary)
 getSounds p = getResource . appendQuery p . sounds
 
-getSounds_ :: (Pack a) => a -> Freesound Sounds
+getSounds_ :: (Pack a) => a -> Freesound (List Sound.Summary)
 getSounds_ = getSounds def

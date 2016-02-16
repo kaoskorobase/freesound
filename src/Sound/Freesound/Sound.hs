@@ -5,7 +5,6 @@ module Sound.Freesound.Sound (
   , Sound(..)
   , Summary
   , Detail
-  , Sounds
   , url
   , description
   , geotag
@@ -54,9 +53,7 @@ import           Sound.Freesound.API (Freesound, appendQuery, getResource, resou
 import           Control.Applicative
 #endif
 
-type Sounds = List Summary
-
-search :: Pagination -> Sorting -> Filters -> Query -> Freesound Sounds
+search :: Pagination -> Sorting -> Filters -> Query -> Freesound (List Summary)
 search p s fs q =
     getResource
   $ resourceURI
@@ -65,7 +62,7 @@ search p s fs q =
                           , ("f", toQueryValue fs)
                           , ("s", toQueryValue s) ])
 
-search_ :: Query -> Freesound Sounds
+search_ :: Query -> Freesound (List Summary)
 search_ = search def def def
 
 -- | Search for sounds in a certain coordinate region.
@@ -75,10 +72,10 @@ search_ = search def def def
 -- contentSearch :: ...
 
 -- Missing: distance field in the response
-getSimilar :: Pagination -> Detail -> Freesound Sounds
+getSimilar :: Pagination -> Detail -> Freesound (List Summary)
 getSimilar p = getResource . appendQuery p . similarSounds
 
-getSimilar_ :: Detail -> Freesound Sounds
+getSimilar_ :: Detail -> Freesound (List Summary)
 getSimilar_ = getSimilar def
 
 -- getAnalysisStats

@@ -26,9 +26,10 @@ import qualified Data.Text as T
 import           Sound.Freesound.API (Freesound, appendQuery, getResource, resourceURI)
 import qualified Sound.Freesound.Bookmark as Bookmark
 import qualified Sound.Freesound.Bookmark.Internal as Bookmark
+import           Sound.Freesound.List (List)
 import           Sound.Freesound.Pack (Packs)
 import           Sound.Freesound.Search (Pagination)
-import           Sound.Freesound.Sound (Sounds)
+import qualified Sound.Freesound.Sound as Sound
 import           Sound.Freesound.User.Type
 
 -- | Get detailed information about a user.
@@ -45,12 +46,12 @@ getBookmarkCategories = liftM Bookmark.categories . getResource . bookmarkCatego
 
 -- | Retrieve a user's sounds.
 -- This is broken: the response doesn't contain the User.
-getSounds :: Pagination -> Detail -> Freesound Sounds
+getSounds :: Pagination -> Detail -> Freesound (List Sound.Summary)
 getSounds p = getResource . appendQuery p . sounds
 
 -- | Retrieve a user's sounds.
 
-getSounds_ :: Detail -> Freesound Sounds
+getSounds_ :: Detail -> Freesound (List Sound.Summary)
 getSounds_ = getSounds def
 
 -- | Retrieve a user's packs.
