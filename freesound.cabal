@@ -21,12 +21,12 @@ tested-with:        GHC == 6.10.1, GHC == 6.10.4, GHC == 6.12.1, GHC == 7.10.3
 build-type:         Simple
 cabal-version:      >= 1.8
 
+extra-source-files:
+  CHANGELOG.md
+
 source-repository head
   type: git
   location: https://github.com/kaoskorobase/freesound
-
-extra-source-files:
-  CHANGELOG.md
 
 library
   exposed-modules:  Sound.Freesound
