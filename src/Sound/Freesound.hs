@@ -20,17 +20,13 @@ module Sound.Freesound
 , getSounds
 , getSounds_
 , getPacks
-  -- * Sounds
-, search
-, search_
   -- * Freesound API monad
 , module Sound.Freesound.API
 )
 where
 
-import Sound.Freesound.API (Freesound, runFreesound, APIKey, apiKeyFromString)
+import Sound.Freesound.API (Freesound, runFreesound, APIKey, apiKeyFromString, getResource)
 import Sound.Freesound.List
 import Sound.Freesound.Search
 import Sound.Freesound.Search.Query
 import Sound.Freesound.User
-import Sound.Freesound.Sound
