@@ -74,6 +74,7 @@ test-suite spec
   main-is:          Spec.hs
   other-modules:    Sound.Freesound.Test
   build-depends:    base == 4.*
+                  , aeson >= 0.6
                   , data-default
                   , freesound
                   , hspec
