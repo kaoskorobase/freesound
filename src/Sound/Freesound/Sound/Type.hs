@@ -8,7 +8,7 @@ import           Data.Text (Text)
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
 import           Sound.Freesound.API (Resource, URI)
-import           Sound.Freesound.List (List, Elem(..))
+import           Sound.Freesound.List (List)
 -- import qualified Sound.Freesound.User.Type as User
 
 #if __GLASGOW_HASKELL__ < 710
@@ -212,9 +212,6 @@ instance Sound Summary where
   tags = summary_tags
   username = summary_username
   license = summary_license
-
-instance Elem Summary where
-  elemsFieldName _ = "sounds"
 
 -- | Coordinate
 data GeoTag = GeoTag {

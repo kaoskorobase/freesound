@@ -1,7 +1,6 @@
 {-# LANGUAGE CPP, OverloadedStrings, ScopedTypeVariables #-}
 module Sound.Freesound.List (
   List
-, Elem(..)
 , elems
 , numElems
 , previous
@@ -25,9 +24,6 @@ data List a = List {
 , previous :: Maybe (Resource (List a))
 , next     :: Maybe (Resource (List a))
 } deriving (Eq, Show)
-
-class Elem a where
-  elemsFieldName :: a -> Text
 
 instance FromJSON a => FromJSON (List a) where
   parseJSON (Object v) =

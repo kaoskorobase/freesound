@@ -5,7 +5,7 @@ import           Control.Monad (mzero)
 import           Data.Aeson (FromJSON(..), Value(..), (.:))
 import           Data.Text (Text)
 import           Sound.Freesound.API (Resource, URI)
-import           Sound.Freesound.List (List, Elem(..))
+import           Sound.Freesound.List (List)
 import qualified Sound.Freesound.Sound as Sound
 
 #if __GLASGOW_HASKELL__ < 710
@@ -53,9 +53,6 @@ instance FromJSON Summary where
     <*> o .: "created"
     <*> o .: "num_downloads"
   parseJSON _ = mzero
-
-instance Elem Summary where
-  elemsFieldName _ = "packs"
 
 data Detail = Detail {
   summary :: Summary
