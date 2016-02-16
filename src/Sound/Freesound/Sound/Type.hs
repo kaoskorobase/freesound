@@ -1,7 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 module Sound.Freesound.Sound.Type where
 
-import           Control.Applicative ((<$>), (<*>))
 import           Control.Monad (mzero)
 import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?))
 import qualified Data.ByteString.Char8 as BS
@@ -11,6 +10,10 @@ import           Prelude hiding (id)
 import           Sound.Freesound.API (Resource, URI)
 import           Sound.Freesound.List (List, Elem(..))
 -- import qualified Sound.Freesound.User.Type as User
+
+#if __GLASGOW_HASKELL__ < 710
+import           Control.Applicative
+#endif
 
 newtype SoundId = SoundId Integer
                   deriving (Eq, Ord, Show)
