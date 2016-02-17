@@ -40,12 +40,12 @@ data User = User {
   , homepage :: Maybe URI                   -- ^ The URI of users' homepage outside Freesound (if indicated).
   , avatar :: Maybe Avatar                  -- ^ The user's avatar image (if indicated).
   , dateJoined :: UTCTime                   -- ^ The date when the user joined Freesound.
-  , numSounds :: Integer                    -- ^ The number of sounds uploaded by the user.
+  , numSounds :: Int                        -- ^ The number of sounds uploaded by the user.
   , sounds :: Resource (List Sound.Summary) -- ^ The API URI for this user’s sound collection.
-  , numPacks :: Integer                     -- ^ The number of packs by the user.
+  , numPacks :: Int                         -- ^ The number of packs by the user.
   , packs :: Resource (List Pack.Summary)           -- ^ The API URI for this user’s pack collection.
-  , numPosts :: Integer                             -- ^ The number of forum posts by the user.
-  , numComments :: Integer                          -- ^ The number of comments that user made in other users' sounds.
+  , numPosts :: Int                                 -- ^ The number of forum posts by the user.
+  , numComments :: Int                              -- ^ The number of comments that user made in other users' sounds.
   , bookmarkCategories :: Resource (List Bookmark)  -- ^ The URI for a list of bookmark categories by the user.
 } deriving (Eq, Show)
 

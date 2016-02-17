@@ -2,10 +2,12 @@ module Sound.Freesound.Test (
     fs
   , anySatisfy
   , allSatisfy
+  , getAll
 ) where
 
 import Data.Aeson (FromJSON)
 import Sound.Freesound
+import qualified Sound.Freesound.List as L
 import System.Environment (getEnv)
 
 fs :: Freesound a -> IO a
@@ -30,3 +32,11 @@ allSatisfy p l = do
         Nothing -> return True
         Just l' -> allSatisfy p l'
     else return False
+
+getAll :: (FromJSON a) => List a -> Freesound [a]
+getAll l =
+  case L.next l of
+    Nothing -> return $ L.elems l
+    Just n -> do
+      xs <- getAll =<< getResource n
+      return $ L.elems l ++ xs
