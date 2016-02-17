@@ -5,25 +5,15 @@ module Sound.Freesound.User (
 , getUserByName
 ) where
 
-import           Control.Monad (join, liftM)
-import           Data.Default (def)
-import           Data.Text (Text)
-import qualified Data.Text as T
-import           Sound.Freesound.API (Freesound, appendQuery, getResource, resourceURI)
-import           Sound.Freesound.List (List)
-import           Sound.Freesound.Pack (Packs)
-import           Sound.Freesound.Search (Pagination)
-import qualified Sound.Freesound.Sound as Sound
-
-import           Control.Monad (mzero)
+import           Control.Monad (join)
 import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?))
 import           Data.Text (Text)
-import qualified Data.Text as T
-import           Sound.Freesound.API (Resource, URI)
+import           Sound.Freesound.API (Freesound, Resource, URI, getResource, resourceURI)
 import           Sound.Freesound.Bookmark (Bookmark)
 import           Sound.Freesound.List (List)
 import qualified Sound.Freesound.Pack.Type as Pack
-import qualified Sound.Freesound.Sound.Type as Sound
+import qualified Sound.Freesound.Sound as Sound
+import           Sound.Freesound.Time
 
 #if __GLASGOW_HASKELL__ < 710
 import           Control.Applicative
@@ -49,7 +39,7 @@ data User = User {
   , about :: Maybe Text                     -- ^ The 'about' text of users' profile (if indicated).
   , homepage :: Maybe URI                   -- ^ The URI of users' homepage outside Freesound (if indicated).
   , avatar :: Maybe Avatar                  -- ^ The user's avatar image (if indicated).
-  , dateJoined :: Text                      -- ^ The date when the user joined Freesound.
+  , dateJoined :: UTCTime                   -- ^ The date when the user joined Freesound.
   , numSounds :: Integer                    -- ^ The number of sounds uploaded by the user.
   , sounds :: Resource (List Sound.Summary) -- ^ The API URI for this user’s sound collection.
   , numPacks :: Integer                     -- ^ The number of packs by the user.
@@ -67,7 +57,7 @@ instance FromJSON User where
     <*> (join <$> (v .:? "about"))
     <*> (join <$> (v .:? "homepage"))
     <*> (join <$> (v .:? "avatar"))
-    <*> v .: "date_joined"
+    <*> (toUTCTime <$> (v .: "date_joined"))
     <*> v .: "num_sounds"
     <*> v .: "sounds"
     <*> v .: "num_packs"

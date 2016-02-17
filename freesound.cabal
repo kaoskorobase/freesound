@@ -43,6 +43,7 @@ library
                     Sound.Freesound.Bookmark.Internal
                     Sound.Freesound.Pack.Type
                     Sound.Freesound.Sound.Type
+                    Sound.Freesound.Time
                     Sound.Freesound.User.Type
   build-depends:    base >= 3 && < 5
                   , aeson >= 0.6
