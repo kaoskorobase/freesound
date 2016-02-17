@@ -115,7 +115,7 @@ data Detail = Detail {
   , sound_tags          :: [Text]       -- ^ An array of tags the user gave to the sound.
   , description         :: Text         -- ^ The description the user gave to the sound.
   , geotag              :: Maybe GeoTag -- ^ Latitude and longitude of the geotag (only for sounds that have been geotagged).
-  , created             :: Text         -- ^ The date of when the sound was uploaded.
+  , created             :: UTCTime      -- ^ The date of when the sound was uploaded.
   , sound_license       :: License      -- ^ The license under which the sound is available to you.
   , fileType            :: FileType     -- ^ The type of sound (wav, aif, mp3, etc.).
   , channels            :: Int          -- ^ The number of channels.
@@ -152,7 +152,7 @@ instance FromJSON Detail where
       <*> v .: "tags"
       <*> v .: "description"
       <*> v .:? "geotag"
-      <*> v .: "created"
+      <*> (toUTCTime <$> (v .: "created"))
       <*> v .: "license"
       <*> v .: "type"
       <*> v .: "channels"
