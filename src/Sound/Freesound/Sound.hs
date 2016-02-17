@@ -2,6 +2,7 @@
 module Sound.Freesound.Sound (
     SoundId(..)
   , FileType(..)
+  , GeoTag(..)
   , Sound(..)
   , Summary
   , Detail

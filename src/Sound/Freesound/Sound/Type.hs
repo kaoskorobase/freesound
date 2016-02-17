@@ -2,9 +2,11 @@
 module Sound.Freesound.Sound.Type where
 
 import           Control.Monad (mzero)
-import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?))
+import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?), decodeStrict)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Text (Text)
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
 import           Sound.Freesound.API (Resource, URI)
@@ -218,5 +220,9 @@ data GeoTag = GeoTag {
 } deriving (Eq, Show)
 
 instance FromJSON GeoTag where
-  parseJSON (String _) = pure (GeoTag 0 0)
+  parseJSON (String s) = do
+    let coords = T.concat ["[", T.intercalate "," (T.splitOn " " s), "]"]
+    case decodeStrict (T.encodeUtf8 coords) of
+      Just [lat, lon] -> return $ GeoTag lat lon
+      _ -> fail "Couldn't parse GeoTag"
   parseJSON _ = fail "Couldn't parse GeoTag"

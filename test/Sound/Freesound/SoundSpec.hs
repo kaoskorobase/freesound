@@ -17,6 +17,9 @@ spiffySpankId = Sound.SoundId 167068
 spiffySpank :: Freesound Sound.Detail
 spiffySpank = Sound.soundById spiffySpankId
 
+nokia_2600_warmup :: Freesound Sound.Detail
+nokia_2600_warmup = Sound.soundById (Sound.SoundId 330864)
+
 spec :: Spec
 spec = do
   describe "Sound" $ do
@@ -34,3 +37,8 @@ spec = do
                     <$> (fs $ getAll =<< search_ (include "Spiffy Spank"))
       (s, s') <- fs $ (,) <$> Sound.soundDetail info <*> spiffySpank
       s `shouldBe` s'
+    it "has no geotag" $ do
+      Sound.geotag <$> fs spiffySpank `shouldReturn` Nothing
+    it "has the correct geotag" $ do
+      Sound.geotag <$> fs nokia_2600_warmup
+        `shouldReturn` Just (Sound.GeoTag 41.4151829276 2.16533660889)
