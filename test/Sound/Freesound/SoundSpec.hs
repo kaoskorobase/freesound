@@ -1,22 +1,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Sound.Freesound.SoundSpec (spec) where
 
-import           Data.Default (def)
 import           Sound.Freesound
 import qualified Sound.Freesound.Sound as Sound
 import           Sound.Freesound.Test
 import           Test.Hspec
 
+spiffySpank :: Freesound Sound.Detail
+spiffySpank = Sound.soundById (Sound.SoundId 167068)
+
 spec :: Spec
 spec = do
-  describe "search" $ do
-    it "searches" $ do
-      let p s =    Sound.username s == "k0s"
-                && Sound.name s == "Spiffy Spank"
-      fs (anySatisfy p =<< search_ (include "spank")) `shouldReturn` True
-    it "filters by user name" $ do
-      let p s = Sound.username s == "k0s"
-      fs (allSatisfy p =<< search def def (username "k0s") (include "spank")) `shouldReturn` True
-    it "paginates" $ do
-      l <- fs $ search (Pagination 0 1) def def ""
-      length (elems l) `shouldBe` 1
+  describe "Sound" $ do
+    it "can be retrieved by id" $ do
+      s <- fs spiffySpank
+      Sound.name s `shouldBe` "Spiffy Spank"
+    it "has the correct creation date" $ do
+      s <- fs spiffySpank
+      Sound.created s `shouldBe` read "2012-10-10 15:24:33.328 UTC"
