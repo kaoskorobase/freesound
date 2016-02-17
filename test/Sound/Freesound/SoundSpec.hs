@@ -18,3 +18,6 @@ spec = do
     it "has the correct creation date" $ do
       s <- fs spiffySpank
       Sound.created s `shouldBe` read "2012-10-10 15:24:33.328 UTC"
+    it "has the correct file type" $ do
+      s <- fs spiffySpank
+      Sound.fileType s `shouldBe` Sound.WAV
