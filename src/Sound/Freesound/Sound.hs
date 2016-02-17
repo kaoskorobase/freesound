@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP, OverloadedStrings #-}
 module Sound.Freesound.Sound (
-    SoundId
+    SoundId(..)
   , FileType(..)
   , Sound(..)
   , Summary
@@ -34,6 +34,13 @@ module Sound.Freesound.Sound (
   -- , analysis
   , analysisStats
   , analysisFrames
+  , soundById
 ) where
 
-import Sound.Freesound.Sound.Type
+import qualified Data.Text as T
+import           Sound.Freesound.API
+import           Sound.Freesound.Sound.Type
+
+-- | Get a sound by id.
+soundById :: SoundId -> Freesound Detail
+soundById (SoundId i) = getResource $ resourceURI ["sounds", T.pack (show i)] []

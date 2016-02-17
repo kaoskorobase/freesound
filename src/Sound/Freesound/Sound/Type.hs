@@ -9,17 +9,15 @@ import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
 import           Sound.Freesound.API (Resource, URI)
 import           Sound.Freesound.List (List)
+import           Sound.Freesound.Time
 -- import qualified Sound.Freesound.User.Type as User
 
 #if __GLASGOW_HASKELL__ < 710
 import           Control.Applicative
 #endif
 
-newtype SoundId = SoundId Integer
+newtype SoundId = SoundId { soundIdToInteger :: Integer }
                   deriving (Eq, Ord, Show)
-
-soundIdToInteger :: SoundId -> Integer
-soundIdToInteger (SoundId i) = i
 
 instance FromJSON SoundId where
   parseJSON (Number i) = return $ SoundId (truncate i)
