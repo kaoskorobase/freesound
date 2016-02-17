@@ -35,12 +35,16 @@ module Sound.Freesound.Sound (
   , analysisStats
   , analysisFrames
   , soundById
+  , soundDetail
 ) where
 
 import qualified Data.Text as T
 import           Sound.Freesound.API
-import           Sound.Freesound.Sound.Type
+import           Sound.Freesound.Sound.Type as Sound
 
 -- | Get a sound by id.
 soundById :: SoundId -> Freesound Detail
 soundById (SoundId i) = getResource $ resourceURI ["sounds", T.pack (show i)] []
+
+soundDetail :: Summary -> Freesound Detail
+soundDetail = soundById . Sound.id
