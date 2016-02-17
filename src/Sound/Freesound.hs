@@ -14,12 +14,7 @@ module Sound.Freesound
 , module Sound.Freesound.Search.Query
 , module Sound.Freesound.List
   -- * Users
-, getUser
 , getUserByName
-, getBookmarkCategories
-, getSounds
-, getSounds_
-, getPacks
   -- * Freesound API monad
 , module Sound.Freesound.API
 )
@@ -29,4 +24,4 @@ import Sound.Freesound.API (Freesound, runFreesound, APIKey, apiKeyFromString, g
 import Sound.Freesound.List
 import Sound.Freesound.Search
 import Sound.Freesound.Search.Query
-import Sound.Freesound.User
+import Sound.Freesound.User (getUserByName)
