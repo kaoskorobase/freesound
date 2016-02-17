@@ -46,5 +46,6 @@ import           Sound.Freesound.Sound.Type as Sound
 soundById :: SoundId -> Freesound Detail
 soundById (SoundId i) = getResource $ resourceURI ["sounds", T.pack (show i)] []
 
+-- | Get detailed sound information from its summary.
 soundDetail :: Summary -> Freesound Detail
 soundDetail = soundById . Sound.id
