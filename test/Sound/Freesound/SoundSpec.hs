@@ -4,6 +4,7 @@ module Sound.Freesound.SoundSpec (spec) where
 import           Data.List (find)
 import           Data.Maybe (fromJust)
 import           Sound.Freesound
+import qualified Sound.Freesound.Comment as Comment
 import qualified Sound.Freesound.Pack as Pack
 import qualified Sound.Freesound.Sound as Sound
 import           Sound.Freesound.Test
@@ -52,3 +53,12 @@ spec = do
       r `shouldNotBe` Nothing
       p <- fs . getResource . fromJust $ r
       Pack.name p `shouldBe` "Nokia 2600"
+  describe "Nokia_2600_Silence.wav" $ do
+    it "should have a lovely comment" $ do
+      s <- fs . Sound.soundById $ Sound.SoundId 231519
+      l <- fs . getResource . Sound.comments $ s
+      let c = Comment.Comment {
+            Comment.username = "toiletrolltube"
+          , Comment.comment = "I love this sort of stuff, very useful indeed thanks."
+          , Comment.created = read "2014-03-29 03:15:55.948 UTC" }
+      fs (anySatisfy (==c) l) `shouldReturn` True

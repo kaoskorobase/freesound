@@ -31,6 +31,7 @@ source-repository head
 library
   exposed-modules:  Sound.Freesound
                     Sound.Freesound.Bookmark
+                    Sound.Freesound.Comment
                     Sound.Freesound.List
                     Sound.Freesound.Pack
                     Sound.Freesound.Search

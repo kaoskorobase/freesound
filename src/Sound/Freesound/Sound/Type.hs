@@ -10,6 +10,7 @@ import qualified Data.Text.Encoding as T
 import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
 import           Sound.Freesound.API (Resource, URI)
+import           Sound.Freesound.Comment (Comment)
 import           Sound.Freesound.List (List)
 import           Sound.Freesound.Pack.Type (Pack)
 import           Sound.Freesound.Time
@@ -112,35 +113,35 @@ instance FromJSON Images where
   parseJSON _ = fail "Couldn't parse Images"
 
 data Detail = Detail {
-    sound_id            :: SoundId      -- ^ The sound’s unique identifier.
-  , url                 :: URI          -- ^ The URI for this sound on the Freesound website.
-  , sound_name          :: Text         -- ^ The name user gave to the sound.
-  , sound_tags          :: [Text]       -- ^ An array of tags the user gave to the sound.
-  , description         :: Text         -- ^ The description the user gave to the sound.
-  , geotag              :: Maybe GeoTag -- ^ Latitude and longitude of the geotag (only for sounds that have been geotagged).
-  , created             :: UTCTime      -- ^ The date of when the sound was uploaded.
-  , sound_license       :: License      -- ^ The license under which the sound is available to you.
-  , fileType            :: FileType     -- ^ The type of sound (wav, aif, mp3, etc.).
-  , channels            :: Int          -- ^ The number of channels.
-  , filesize            :: Integer      -- ^ The size of the file in bytes.
-  , bitrate             :: Int          -- ^ The bit rate of the sound.
-  , bitdepth            :: Int          -- ^ The bit depth of the sound.
-  , duration            :: Double       -- ^ The duration of the sound in seconds.
-  , samplerate          :: Int          -- ^ The samplerate of the sound.
-  , sound_username      :: Text         -- ^ The username of the uploader of the sound.
-  , pack                :: Maybe (Resource Pack) -- ^ If the sound is part of a pack, this URI points to that pack’s API resource.
-  , download            :: URI          -- ^ The URI for retrieving the original sound.
-  , bookmark            :: URI          -- ^ The URI for bookmarking the sound.
-  , previews            :: Previews     -- ^ Dictionary containing the URIs for mp3 and ogg versions of the sound. The dictionary includes the fields preview-hq-mp3 and preview-lq-mp3 (for ~128kbps quality and ~64kbps quality mp3 respectively), and preview-hq-ogg and preview-lq-ogg (for ~192kbps quality and ~80kbps quality ogg respectively).
-  , images              :: Images       -- ^ Dictionary including the URIs for spectrogram and waveform visualizations of the sound. The dinctionary includes the fields waveform_l and waveform_m (for large and medium waveform images respectively), and spectral_l and spectral_m (for large and medium spectrogram images respectively).
-  , numDownloads        :: Integer      -- ^ The number of times the sound was downloaded.
-  , avgRating           :: Double       -- ^ The average rating of the sound.
-  , numRatings          :: Integer      -- ^ The number of times the sound was rated.
-  , rate                :: URI          -- ^ The URI for rating the sound.
-  , comments            :: Resource ()     -- ^ The URI of a paginated list of the comments of the sound.
-  , numComments         :: Integer      -- ^ The number of comments.
-  , comment             :: URI          -- ^ The URI to comment the sound.
-  , similarSounds       :: Resource (List Summary)     -- ^ URI pointing to the similarity resource (to get a list of similar sounds).
+    sound_id            :: SoundId                  -- ^ The sound’s unique identifier.
+  , url                 :: URI                      -- ^ The URI for this sound on the Freesound website.
+  , sound_name          :: Text                     -- ^ The name user gave to the sound.
+  , sound_tags          :: [Text]                   -- ^ An array of tags the user gave to the sound.
+  , description         :: Text                     -- ^ The description the user gave to the sound.
+  , geotag              :: Maybe GeoTag             -- ^ Latitude and longitude of the geotag (only for sounds that have been geotagged).
+  , created             :: UTCTime                  -- ^ The date of when the sound was uploaded.
+  , sound_license       :: License                  -- ^ The license under which the sound is available to you.
+  , fileType            :: FileType                 -- ^ The type of sound (wav, aif, mp3, etc.).
+  , channels            :: Int                      -- ^ The number of channels.
+  , filesize            :: Integer                  -- ^ The size of the file in bytes.
+  , bitrate             :: Int                      -- ^ The bit rate of the sound.
+  , bitdepth            :: Int                      -- ^ The bit depth of the sound.
+  , duration            :: Double                   -- ^ The duration of the sound in seconds.
+  , samplerate          :: Int                      -- ^ The samplerate of the sound.
+  , sound_username      :: Text                     -- ^ The username of the uploader of the sound.
+  , pack                :: Maybe (Resource Pack)    -- ^ If the sound is part of a pack, this URI points to that pack’s API resource.
+  , download            :: URI                      -- ^ The URI for retrieving the original sound.
+  , bookmark            :: URI                      -- ^ The URI for bookmarking the sound.
+  , previews            :: Previews                 -- ^ Dictionary containing the URIs for mp3 and ogg versions of the sound. The dictionary includes the fields preview-hq-mp3 and preview-lq-mp3 (for ~128kbps quality and ~64kbps quality mp3 respectively), and preview-hq-ogg and preview-lq-ogg (for ~192kbps quality and ~80kbps quality ogg respectively).
+  , images              :: Images                   -- ^ Dictionary including the URIs for spectrogram and waveform visualizations of the sound. The dinctionary includes the fields waveform_l and waveform_m (for large and medium waveform images respectively), and spectral_l and spectral_m (for large and medium spectrogram images respectively).
+  , numDownloads        :: Integer                  -- ^ The number of times the sound was downloaded.
+  , avgRating           :: Double                   -- ^ The average rating of the sound.
+  , numRatings          :: Integer                  -- ^ The number of times the sound was rated.
+  , rate                :: URI                      -- ^ The URI for rating the sound.
+  , comments            :: Resource (List Comment)  -- ^ The URI of a paginated list of the comments of the sound.
+  , numComments         :: Integer                  -- ^ The number of comments.
+  , comment             :: URI                      -- ^ The URI to comment the sound.
+  , similarSounds       :: Resource (List Summary)  -- ^ URI pointing to the similarity resource (to get a list of similar sounds).
   -- , analysis            :: Maybe
   , analysisStats       :: Resource ()     -- ^ URI pointing to the complete analysis results of the sound.
   , analysisFrames      :: Resource ()    -- ^ The URI for retrieving a JSON file with analysis information for each frame of the sound.
