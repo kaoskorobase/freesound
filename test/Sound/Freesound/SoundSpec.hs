@@ -2,7 +2,9 @@
 module Sound.Freesound.SoundSpec (spec) where
 
 import           Data.List (find)
+import           Data.Maybe (fromJust)
 import           Sound.Freesound
+import qualified Sound.Freesound.Pack as Pack
 import qualified Sound.Freesound.Sound as Sound
 import           Sound.Freesound.Test
 import           Test.Hspec
@@ -22,7 +24,7 @@ nokia_2600_warmup = Sound.soundById (Sound.SoundId 330864)
 
 spec :: Spec
 spec = do
-  describe "Sound" $ do
+  describe "Spiffy Spank" $ do
     it "can be retrieved by id" $ do
       s <- fs spiffySpank
       Sound.name s `shouldBe` "Spiffy Spank"
@@ -39,6 +41,14 @@ spec = do
       s `shouldBe` s'
     it "has no geotag" $ do
       Sound.geotag <$> fs spiffySpank `shouldReturn` Nothing
+    it "is not part of a pack" $ do
+      Sound.pack <$> fs spiffySpank `shouldReturn` Nothing
+  describe "nokia_2600_warmup" $ do
     it "has the correct geotag" $ do
       Sound.geotag <$> fs nokia_2600_warmup
         `shouldReturn` Just (Sound.GeoTag 41.4151829276 2.16533660889)
+    it "is part of pack \"Nokia 2600\"" $ do
+      r <- Sound.pack <$> fs nokia_2600_warmup
+      r `shouldNotBe` Nothing
+      p <- fs . getResource . fromJust $ r
+      Pack.name p `shouldBe` "Nokia 2600"

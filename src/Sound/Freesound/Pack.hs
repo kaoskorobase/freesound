@@ -1,24 +1,23 @@
 module Sound.Freesound.Pack (
-  Pack(..)
-, Packs
-, Summary
-, Detail
-, username
-, getSounds
-, getSounds_
+    Pack
+  , id
+  , url
+  , description
+  , created
+  , name
+  , username
+  , numSounds
+  , sounds
+  , numDownloads
 ) where
 
-import Data.Default (def)
-import Sound.Freesound.API (Freesound, appendQuery, getResource)
-import Sound.Freesound.List (List)
-import Sound.Freesound.Pack.Type
-import Sound.Freesound.Search (Pagination)
+import           Prelude hiding (id)
+import           Sound.Freesound.API
+import           Sound.Freesound.List (List)
+import           Sound.Freesound.Pack.Type hiding (sounds)
+import qualified Sound.Freesound.Pack.Type as Pack
 import qualified Sound.Freesound.Sound as Sound
 
-type Packs = List Summary
-
-getSounds :: (Pack a) => Pagination -> a -> Freesound (List Sound.Summary)
-getSounds p = getResource . appendQuery p . sounds
-
-getSounds_ :: (Pack a) => a -> Freesound (List Sound.Summary)
-getSounds_ = getSounds def
+-- ^ The URI for a list of sounds in the pack.
+sounds :: Pack -> Resource (List Sound.Summary)
+sounds = Resource . Pack.sounds

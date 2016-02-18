@@ -11,7 +11,7 @@ import           Data.Text (Text)
 import           Sound.Freesound.API (Freesound, Resource, URI, getResource, resourceURI)
 import           Sound.Freesound.Bookmark (BookmarkCategory)
 import           Sound.Freesound.List (List)
-import qualified Sound.Freesound.Pack.Type as Pack
+import           Sound.Freesound.Pack (Pack)
 import qualified Sound.Freesound.Sound as Sound
 import           Sound.Freesound.Time
 
@@ -43,7 +43,7 @@ data User = User {
   , numSounds :: Int                        -- ^ The number of sounds uploaded by the user.
   , sounds :: Resource (List Sound.Summary) -- ^ The API URI for this user’s sound collection.
   , numPacks :: Int                         -- ^ The number of packs by the user.
-  , packs :: Resource (List Pack.Summary)   -- ^ The API URI for this user’s pack collection.
+  , packs :: Resource (List Pack)           -- ^ The API URI for this user’s pack collection.
   , numPosts :: Int                         -- ^ The number of forum posts by the user.
   , numComments :: Int                      -- ^ The number of comments that user made in other users' sounds.
   , bookmarkCategories :: Resource (List BookmarkCategory)  -- ^ The URI for a list of bookmark categories by the user.

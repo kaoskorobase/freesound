@@ -11,6 +11,7 @@ import           Network.HTTP.Types.QueryLike (QueryValueLike(..))
 import           Prelude hiding (id)
 import           Sound.Freesound.API (Resource, URI)
 import           Sound.Freesound.List (List)
+import           Sound.Freesound.Pack.Type (Pack)
 import           Sound.Freesound.Time
 -- import qualified Sound.Freesound.User.Type as User
 
@@ -127,7 +128,7 @@ data Detail = Detail {
   , duration            :: Double       -- ^ The duration of the sound in seconds.
   , samplerate          :: Int          -- ^ The samplerate of the sound.
   , sound_username      :: Text         -- ^ The username of the uploader of the sound.
-  , pack                :: Maybe (Resource ()) -- ^ If the sound is part of a pack, this URI points to that pack’s API resource.
+  , pack                :: Maybe (Resource Pack) -- ^ If the sound is part of a pack, this URI points to that pack’s API resource.
   , download            :: URI          -- ^ The URI for retrieving the original sound.
   , bookmark            :: URI          -- ^ The URI for bookmarking the sound.
   , previews            :: Previews     -- ^ Dictionary containing the URIs for mp3 and ogg versions of the sound. The dictionary includes the fields preview-hq-mp3 and preview-lq-mp3 (for ~128kbps quality and ~64kbps quality mp3 respectively), and preview-hq-ogg and preview-lq-ogg (for ~192kbps quality and ~80kbps quality ogg respectively).

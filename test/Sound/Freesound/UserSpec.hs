@@ -7,6 +7,7 @@ import           Data.Maybe (fromJust)
 import qualified Data.Set as Set
 import           Sound.Freesound
 import qualified Sound.Freesound.Bookmark as Bookmark
+import qualified Sound.Freesound.Pack as Pack
 import qualified Sound.Freesound.Sound as Sound
 import qualified Sound.Freesound.User as User
 import           Sound.Freesound.Test
@@ -36,9 +37,18 @@ spec = do
       sounds <- fs $ getAll =<< getResource . User.sounds =<< k0s
       sounds' <- fs $ getAll =<< search def def (username "k0s") def
       Set.fromList (map Sound.id sounds) `shouldBe` Set.fromList (map Sound.id sounds')
-    -- it "has a pack" $ do
-    --   p <- fs $ getResource =<< User.packs <$> User.getUserByName "silentseason"
-    --   print p
+    it "has a pack called \"Nokia 2600\" containing 2 sounds" $ do
+      u <- fs k0s
+      l <- fs . getResource . User.packs $ u
+      numElems l `shouldSatisfy` (>=1)
+      r <- fs $ find (\p -> Pack.name p == "Nokia 2600") <$> getAll l
+      r `shouldNotBe` Nothing
+      let p = fromJust r
+      Pack.numSounds p `shouldBe` 2
+      Pack.username p `shouldBe` User.username u
+      sounds <- fs . getResource . Pack.sounds $ p
+      numElems sounds `shouldBe` 2
+      length (elems sounds) `shouldBe` 2
     it "has haskell-freesound bookmark category" $ do
       l <- fs $ getResource . User.bookmarkCategories =<< k0s
       -- More than one category

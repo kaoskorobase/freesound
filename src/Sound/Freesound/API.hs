@@ -8,7 +8,7 @@ module Sound.Freesound.API (
 -- , request
 , URI
 , getURI
-, Resource
+, Resource(..)
 , resourceURI
 , appendQuery
 , getResource
