@@ -9,7 +9,7 @@ import           Control.Monad (join)
 import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?))
 import           Data.Text (Text)
 import           Sound.Freesound.API (Freesound, Resource, URI, getResource, resourceURI)
-import           Sound.Freesound.Bookmark (Bookmark)
+import           Sound.Freesound.Bookmark (BookmarkCategory)
 import           Sound.Freesound.List (List)
 import qualified Sound.Freesound.Pack.Type as Pack
 import qualified Sound.Freesound.Sound as Sound
@@ -46,7 +46,7 @@ data User = User {
   , packs :: Resource (List Pack.Summary)           -- ^ The API URI for this user’s pack collection.
   , numPosts :: Int                                 -- ^ The number of forum posts by the user.
   , numComments :: Int                              -- ^ The number of comments that user made in other users' sounds.
-  , bookmarkCategories :: Resource (List Bookmark)  -- ^ The URI for a list of bookmark categories by the user.
+  , bookmarkCategories :: Resource (List BookmarkCategory)  -- ^ The URI for a list of bookmark categories by the user.
 } deriving (Eq, Show)
 
 instance FromJSON User where

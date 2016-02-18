@@ -40,11 +40,9 @@ library
                     Sound.Freesound.Sound
                     Sound.Freesound.User
   other-modules:    Sound.Freesound.API
-                    Sound.Freesound.Bookmark.Internal
                     Sound.Freesound.Pack.Type
                     Sound.Freesound.Sound.Type
                     Sound.Freesound.Time
-                    Sound.Freesound.User.Type
   build-depends:    base >= 3 && < 5
                   , aeson >= 0.6
                   , blaze-builder >= 0.3
