@@ -43,9 +43,9 @@ data User = User {
   , numSounds :: Int                        -- ^ The number of sounds uploaded by the user.
   , sounds :: Resource (List Sound.Summary) -- ^ The API URI for this user’s sound collection.
   , numPacks :: Int                         -- ^ The number of packs by the user.
-  , packs :: Resource (List Pack.Summary)           -- ^ The API URI for this user’s pack collection.
-  , numPosts :: Int                                 -- ^ The number of forum posts by the user.
-  , numComments :: Int                              -- ^ The number of comments that user made in other users' sounds.
+  , packs :: Resource (List Pack.Summary)   -- ^ The API URI for this user’s pack collection.
+  , numPosts :: Int                         -- ^ The number of forum posts by the user.
+  , numComments :: Int                      -- ^ The number of comments that user made in other users' sounds.
   , bookmarkCategories :: Resource (List BookmarkCategory)  -- ^ The URI for a list of bookmark categories by the user.
 } deriving (Eq, Show)
 
