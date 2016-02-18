@@ -22,7 +22,7 @@ k0s = User.getUserByName "k0s"
 
 spec :: Spec
 spec = do
-  describe "User" $ do
+  describe "k0s" $ do
     it "can be retrieved by name" $ do
       u <- fs k0s
       User.username u `shouldBe` "k0s"
