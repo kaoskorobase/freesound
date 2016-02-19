@@ -16,6 +16,6 @@ module Sound.Freesound (
   , getUserByName
 ) where
 
-import Sound.Freesound.API (Freesound, runFreesound, APIKey, apiKeyFromString, get)
+import Sound.Freesound.API (Freesound, runFreesound, APIKey, apiKeyFromString, get, download, downloadToFile)
 import Sound.Freesound.List
 import Sound.Freesound.User (getUserByName)

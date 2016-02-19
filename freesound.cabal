@@ -78,6 +78,7 @@ test-suite spec
                     Sound.Freesound.UserSpec
   build-depends:    base == 4.*
                   , aeson >= 0.6
+                  , bytestring >= 0.9
                   , containers
                   , data-default
                   , freesound

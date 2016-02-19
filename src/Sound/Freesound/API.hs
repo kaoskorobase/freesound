@@ -7,6 +7,8 @@ module Sound.Freesound.API (
 , runFreesound
 -- , request
 , URI
+, download
+, downloadToFile
 , Resource(..)
 , resourceURI
 , appendQuery
@@ -74,14 +76,19 @@ parseURI' :: String -> Maybe URI
 parseURI' = fmap URI . URI.parseURI . URI.escapeURIString URI.isAllowedInURI
 
 -- | Download the data referred to by a URI.
-getURI :: URI -> Freesound BL.ByteString
-getURI (URI u) = do
+download :: URI -> Freesound BL.ByteString
+download (URI u) = do
   s <- R.asks session
   APIKey k <- R.asks apiKey
   let opts = HTTP.defaults & HTTP.header "Authorization" .~ ["Token " `BS.append` k]
       u' = URI.uriToString id u ""
+  -- liftIO $ print u'
   r <- liftIO $ Session.getWith opts s u'
   return $ r ^. HTTP.responseBody
+
+-- | Download the data referred to by a URI to a file.
+downloadToFile :: FilePath -> URI -> Freesound ()
+downloadToFile path uri = liftIO . BL.writeFile path =<< download uri
 
 -- | Resource URI.
 newtype Resource a = Resource URI deriving (Eq, FromJSON, Show)
@@ -98,7 +105,7 @@ appendQuery q (Resource (URI u)) = Resource $ URI $ u { URI.uriQuery = q' }
 -- | Get the resource referred to by a URI.
 get :: (FromJSON a) => Resource a -> Freesound a
 get (Resource u) = do
-  handle . eitherDecode <$> getURI u
+  handle . eitherDecode <$> download u
   -- TODO: Proper error handling
   where handle = either (\e -> error $ "JSON decoding failed: " ++ e) id
 
@@ -115,9 +122,3 @@ resourceURI path query = Resource u
                . mappend baseURI
                . HTTP.encodePath path
                $ query
-
--- | Perform an HTTP request given the method, a URI and an optional body and return the response body as a Conduit source.
--- request :: Monad m => HTTP.Method -> URI -> Maybe (C.Source m BS.ByteString) -> FreesoundT m (C.ResumableSource m BS.ByteString)
--- request method (URI uri) body = do
---   f <- FreesoundT $ R.asks httpRequest
---   lift $ f method uri body

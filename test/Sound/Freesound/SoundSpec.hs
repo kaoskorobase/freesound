@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP, OverloadedStrings #-}
 module Sound.Freesound.SoundSpec (spec) where
 
+import qualified Data.ByteString.Lazy as BL
 import           Data.List (find)
 import           Data.Maybe (fromJust)
 import           Sound.Freesound
@@ -54,6 +55,10 @@ spec = do
       r `shouldNotBe` Nothing
       p <- fs . get . fromJust $ r
       Pack.name p `shouldBe` "Nokia 2600"
+    it "can be downloaded" $ do
+      b <- fs $ download . Sound.download =<< nokia_2600_warmup
+      b' <- BL.readFile "test/datat/330864__k0s__nokia-2600-warmup.wav"
+      b `shouldBe` b'
   describe "Nokia_2600_Silence.wav" $ do
     it "should have a lovely comment" $ do
       s <- fs . Sound.soundById $ Sound.SoundId 231519
