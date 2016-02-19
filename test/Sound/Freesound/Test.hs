@@ -3,12 +3,14 @@ module Sound.Freesound.Test (
   , anySatisfy
   , allSatisfy
   , getAll
+  , unlessCI
 ) where
 
 import Data.Aeson (FromJSON)
 import Sound.Freesound
 import qualified Sound.Freesound.List as L
-import System.Environment (getEnv)
+import System.Environment (getEnv, lookupEnv)
+import Test.Hspec.Core.Spec
 
 fs :: Freesound a -> IO a
 fs a = flip runFreesound a =<< apiKeyFromString `fmap` getEnv "FREESOUND_API_KEY"
@@ -40,3 +42,11 @@ getAll l =
     Just n -> do
       xs <- getAll =<< get n
       return $ L.elems l ++ xs
+
+-- | Emit spec only when _not_ running on the CI server.
+unlessCI :: SpecWith () -> SpecWith ()
+unlessCI action = do
+  e <- runIO $ lookupEnv "CI"
+  case e of
+    Nothing -> action
+    _ -> return ()

@@ -17,7 +17,7 @@ maintainer:         Stefan Kersten <kaoskorobase@gmail.com>
 stability:          experimental
 homepage:           https://github.com/kaoskorobase/freesound
 bug-reports:        https://github.com/kaoskorobase/freesound/issues
-tested-with:        GHC == 6.10.1, GHC == 6.10.4, GHC == 6.12.1, GHC == 7.10.3
+tested-with:        GHC == 7.8, GHC == 7.10
 build-type:         Simple
 cabal-version:      >= 1.8
 
@@ -83,3 +83,4 @@ test-suite spec
                   , data-default
                   , freesound
                   , hspec
+                  , hspec-core
