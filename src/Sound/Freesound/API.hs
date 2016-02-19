@@ -10,7 +10,7 @@ module Sound.Freesound.API (
 , Resource(..)
 , resourceURI
 , appendQuery
-, getResource
+, get
 ) where
 
 import qualified Blaze.ByteString.Builder as Builder
@@ -95,9 +95,9 @@ appendQuery q (Resource (URI u)) = Resource $ URI $ u { URI.uriQuery = q' }
            $ HTTP.parseQuery (BS.pack (URI.uriQuery u))
               ++ HTTP.toQuery q
 
--- | Download the resource referred to by a URI.
-getResource :: (FromJSON a) => Resource a -> Freesound a
-getResource (Resource u) = do
+-- | Get the resource referred to by a URI.
+get :: (FromJSON a) => Resource a -> Freesound a
+get (Resource u) = do
   handle . eitherDecode <$> getURI u
   -- TODO: Proper error handling
   where handle = either (\e -> error $ "JSON decoding failed: " ++ e) id

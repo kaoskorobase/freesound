@@ -11,7 +11,7 @@ module Sound.Freesound.List (
 
 import Control.Monad (liftM, mzero)
 import Data.Aeson
-import Sound.Freesound.API (Freesound, Resource, getResource)
+import Sound.Freesound.API (Freesound, Resource, get)
 
 #if __GLASGOW_HASKELL__ < 710
 import           Control.Applicative
@@ -34,7 +34,7 @@ instance FromJSON a => FromJSON (List a) where
   parseJSON _ = mzero
 
 getPrevious :: FromJSON a => List a -> Freesound (Maybe (List a))
-getPrevious = maybe (return Nothing) (liftM Just . getResource) . previous
+getPrevious = maybe (return Nothing) (liftM Just . get) . previous
 
 getNext :: FromJSON a => List a -> Freesound (Maybe (List a))
-getNext = maybe (return Nothing) (liftM Just . getResource) . next
+getNext = maybe (return Nothing) (liftM Just . get) . next

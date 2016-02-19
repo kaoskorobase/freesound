@@ -40,12 +40,12 @@ module Sound.Freesound.Sound (
 ) where
 
 import qualified Data.Text as T
-import           Sound.Freesound.API
+import           Sound.Freesound.API (Freesound, get, resourceURI)
 import           Sound.Freesound.Sound.Type as Sound
 
 -- | Get a sound by id.
 soundById :: SoundId -> Freesound Detail
-soundById (SoundId i) = getResource $ resourceURI ["sounds", T.pack (show i)] []
+soundById (SoundId i) = get $ resourceURI ["sounds", T.pack (show i)] []
 
 -- | Get detailed sound information from its summary.
 soundDetail :: Summary -> Freesound Detail

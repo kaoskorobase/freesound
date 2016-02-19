@@ -8,7 +8,7 @@ module Sound.Freesound.User (
 import           Control.Monad (join)
 import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?))
 import           Data.Text (Text)
-import           Sound.Freesound.API (Freesound, Resource, URI, getResource, resourceURI)
+import           Sound.Freesound.API (Freesound, Resource, URI, get, resourceURI)
 import           Sound.Freesound.Bookmark (BookmarkCategory)
 import           Sound.Freesound.List (List)
 import           Sound.Freesound.Pack (Pack)
@@ -69,4 +69,4 @@ instance FromJSON User where
 
 -- | Get information about a user by name.
 getUserByName :: Text -> Freesound User
-getUserByName u = getResource $ resourceURI [ "users", u ] []
+getUserByName u = get $ resourceURI [ "users", u ] []

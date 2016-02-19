@@ -38,5 +38,5 @@ getAll l =
   case L.next l of
     Nothing -> return $ L.elems l
     Just n -> do
-      xs <- getAll =<< getResource n
+      xs <- getAll =<< get n
       return $ L.elems l ++ xs

@@ -24,7 +24,7 @@ import qualified Data.Text as T
 import           Network.HTTP.Types.QueryLike (QueryLike(..), QueryValueLike(..))
 import           Sound.Freesound.List (List)
 import           Sound.Freesound.Sound.Type
-import           Sound.Freesound.API (Freesound, getResource, resourceURI)
+import           Sound.Freesound.API (Freesound, get, resourceURI)
 
 #if __GLASGOW_HASKELL__ < 710
 import           Control.Applicative
@@ -72,7 +72,7 @@ instance QueryLike Pagination where
 
 search :: Pagination -> Sorting -> Filters -> Query -> Freesound (List Summary)
 search p s fs q =
-    getResource
+    get
   $ resourceURI
     [ "search", "text" ]
     (toQuery p ++ toQuery [ pair "query" q

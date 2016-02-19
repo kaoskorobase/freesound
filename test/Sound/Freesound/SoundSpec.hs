@@ -52,12 +52,12 @@ spec = do
     it "is part of pack \"Nokia 2600\"" $ do
       r <- Sound.pack <$> fs nokia_2600_warmup
       r `shouldNotBe` Nothing
-      p <- fs . getResource . fromJust $ r
+      p <- fs . get . fromJust $ r
       Pack.name p `shouldBe` "Nokia 2600"
   describe "Nokia_2600_Silence.wav" $ do
     it "should have a lovely comment" $ do
       s <- fs . Sound.soundById $ Sound.SoundId 231519
-      l <- fs . getResource . Sound.comments $ s
+      l <- fs . get . Sound.comments $ s
       let c = Comment.Comment {
             Comment.username = "toiletrolltube"
           , Comment.comment = "I love this sort of stuff, very useful indeed thanks."
