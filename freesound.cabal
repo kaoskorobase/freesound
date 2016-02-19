@@ -73,6 +73,9 @@ test-suite spec
   hs-source-dirs:   test
   main-is:          Spec.hs
   other-modules:    Sound.Freesound.Test
+                    Sound.Freesound.SearchSpec
+                    Sound.Freesound.SoundSpec
+                    Sound.Freesound.UserSpec
   build-depends:    base == 4.*
                   , aeson >= 0.6
                   , containers
