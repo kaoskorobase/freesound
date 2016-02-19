@@ -15,11 +15,11 @@ module Sound.Freesound.API (
 
 import qualified Blaze.ByteString.Builder as Builder
 import qualified Blaze.ByteString.Builder.Char8 as Builder
-import           Control.Monad (liftM, mzero)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Control.Monad.Reader as R
 import           Control.Lens
-import           Data.Aeson as J
+import           Data.Aeson
+import           Data.Aeson.Types (typeMismatch)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as BL
 import           Data.Text (Text)
@@ -63,8 +63,11 @@ runFreesound k (Freesound m) = Session.withAPISession (R.runReaderT m . Env k)
 newtype URI = URI URI.URI deriving (Eq, Show)
 
 instance FromJSON URI where
-  parseJSON (String v) = maybe mzero return (parseURI' (T.unpack v))
-  parseJSON _ = mzero
+  parseJSON (String v) =
+    maybe (fail "Couldn't parse URI")
+          return
+          (parseURI' (T.unpack v))
+  parseJSON v = typeMismatch "URI" v
 
 -- | Cover up for Freesound sloppiness.
 parseURI' :: String -> Maybe URI
@@ -92,18 +95,10 @@ appendQuery q (Resource (URI u)) = Resource $ URI $ u { URI.uriQuery = q' }
            $ HTTP.parseQuery (BS.pack (URI.uriQuery u))
               ++ HTTP.toQuery q
 
--- | Create a query item for the API key.
--- apiKeyQuery :: Freesound HTTP.Query
--- apiKeyQuery = do
---   k <- Freesound $ R.asks apiKey
---   return $ [("api_key", Just k)]
-
 -- | Download the resource referred to by a URI.
 getResource :: (FromJSON a) => Resource a -> Freesound a
 getResource (Resource u) = do
-  -- q <- apiKeyQuery
-  -- let Resource u = appendQuery q r
-  liftM (handle . J.eitherDecode) $ getURI u
+  handle . eitherDecode <$> getURI u
   -- TODO: Proper error handling
   where handle = either (\e -> error $ "JSON decoding failed: " ++ e) id
 
