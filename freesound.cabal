@@ -1,5 +1,5 @@
 name:               freesound
-version:            0.2.0
+version:            0.3.0
 synopsis:           Access the Freesound Project database
 description:        Access the Freesound Project database. The Freesound
                     Project is a collaborative database of Creative Commons
