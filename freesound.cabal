@@ -35,13 +35,13 @@ library
                     Sound.Freesound.List
                     Sound.Freesound.Pack
                     Sound.Freesound.Search
-                    Sound.Freesound.Search.Filter
-                    Sound.Freesound.Search.Numerical
-                    Sound.Freesound.Search.Query
                     Sound.Freesound.Sound
                     Sound.Freesound.User
   other-modules:    Sound.Freesound.API
                     Sound.Freesound.Pack.Type
+                    Sound.Freesound.Search.Filter
+                    Sound.Freesound.Search.Numerical
+                    Sound.Freesound.Search.Query
                     Sound.Freesound.Sound.Type
                     Sound.Freesound.Time
   build-depends:    base >= 3 && < 5
