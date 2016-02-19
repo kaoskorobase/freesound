@@ -7,21 +7,15 @@
 --
 -- > import qualified Network.HTTP.Conduit as HTTP
 
-module Sound.Freesound
-(
-  -- * Searching
-  module Sound.Freesound.Search
-, module Sound.Freesound.Search.Query
-, module Sound.Freesound.List
-  -- * Users
-, getUserByName
-  -- * Freesound API monad
-, module Sound.Freesound.API
-)
-where
+module Sound.Freesound (
+    -- * Freesound API monad
+    module Sound.Freesound.API
+    -- * Result lists
+  , module Sound.Freesound.List
+    -- * Users
+  , getUserByName
+) where
 
 import Sound.Freesound.API (Freesound, runFreesound, APIKey, apiKeyFromString, getResource)
 import Sound.Freesound.List
-import Sound.Freesound.Search
-import Sound.Freesound.Search.Query
 import Sound.Freesound.User (getUserByName)
