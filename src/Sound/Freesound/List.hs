@@ -1,7 +1,6 @@
 {-# LANGUAGE CPP, OverloadedStrings, ScopedTypeVariables #-}
 module Sound.Freesound.List (
   List
-, Elem(..)
 , elems
 , numElems
 , previous
@@ -12,8 +11,7 @@ module Sound.Freesound.List (
 
 import Control.Monad (liftM, mzero)
 import Data.Aeson
-import Data.Text (Text)
-import Sound.Freesound.API (Freesound, Resource, getResource)
+import Sound.Freesound.API (Freesound, Resource, get)
 
 #if __GLASGOW_HASKELL__ < 710
 import           Control.Applicative
@@ -26,10 +24,7 @@ data List a = List {
 , next     :: Maybe (Resource (List a))
 } deriving (Eq, Show)
 
-class Elem a where
-  elemsFieldName :: a -> Text
-
-instance (Elem a, FromJSON a) => FromJSON (List a) where
+instance FromJSON a => FromJSON (List a) where
   parseJSON (Object v) =
     List
       <$> v .: "results"
@@ -38,8 +33,8 @@ instance (Elem a, FromJSON a) => FromJSON (List a) where
       <*> v .:? "next"
   parseJSON _ = mzero
 
-getPrevious :: (Elem a, FromJSON a) => List a -> Freesound (Maybe (List a))
-getPrevious = maybe (return Nothing) (liftM Just . getResource) . previous
+getPrevious :: FromJSON a => List a -> Freesound (Maybe (List a))
+getPrevious = maybe (return Nothing) (liftM Just . get) . previous
 
-getNext :: (Elem a, FromJSON a) => List a -> Freesound (Maybe (List a))
-getNext = maybe (return Nothing) (liftM Just . getResource) . next
+getNext :: FromJSON a => List a -> Freesound (Maybe (List a))
+getNext = maybe (return Nothing) (liftM Just . get) . next

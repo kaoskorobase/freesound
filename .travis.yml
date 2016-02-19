@@ -1,11 +1,10 @@
 sudo: false
 language: haskell
 ghc:
- - '7.4.2'
- - '7.8'
+- '7.8'
 env:
   global:
-    secure: KvoXVlP2upFU7hWrg9yyWL98/AjgN9lZYDgKtUuMhfIRQ24eQp5X3xmOJRBASTTW1iVeAsfFVag6+Ak0V5tTAKuwyGeaXoEMX5IchFlVF8R5MpyoyjTUDs5rJsDeaD+qMiLTrmmyf4hQ6pI+E7aEGKXhW0wcuVdYP8RZrXw7HQE=
+    secure: "WCftMkV+uucDn280ZS/XusZISR+ZkBn0VWytk8EV5GnsndhA8UPGnwfxtm+wtmXrIqGXGLD04JY4irMOighEj2MjuON98W1jgtNh3TnxOakRZeIHMJlmr3V9NUuJdMnjUFmi6r2099fI4C7lgI26Mw1MuRnkK0UMh68HWz/mCCE="
 deploy:
   provider: hackage
   username: StefanKersten

@@ -7,20 +7,21 @@ module Sound.Freesound.API (
 , runFreesound
 -- , request
 , URI
-, getURI
-, Resource
+, download
+, downloadToFile
+, Resource(..)
 , resourceURI
 , appendQuery
-, getResource
+, get
 ) where
 
 import qualified Blaze.ByteString.Builder as Builder
 import qualified Blaze.ByteString.Builder.Char8 as Builder
-import           Control.Monad (liftM, mzero)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Control.Monad.Reader as R
 import           Control.Lens
-import           Data.Aeson as J
+import           Data.Aeson
+import           Data.Aeson.Types (typeMismatch)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as BL
 import           Data.Text (Text)
@@ -64,22 +65,30 @@ runFreesound k (Freesound m) = Session.withAPISession (R.runReaderT m . Env k)
 newtype URI = URI URI.URI deriving (Eq, Show)
 
 instance FromJSON URI where
-  parseJSON (String v) = maybe mzero return (parseURI' (T.unpack v))
-  parseJSON _ = mzero
+  parseJSON (String v) =
+    maybe (fail "Couldn't parse URI")
+          return
+          (parseURI' (T.unpack v))
+  parseJSON v = typeMismatch "URI" v
 
 -- | Cover up for Freesound sloppiness.
 parseURI' :: String -> Maybe URI
 parseURI' = fmap URI . URI.parseURI . URI.escapeURIString URI.isAllowedInURI
 
 -- | Download the data referred to by a URI.
-getURI :: URI -> Freesound BL.ByteString
-getURI (URI u) = do
+download :: URI -> Freesound BL.ByteString
+download (URI u) = do
   s <- R.asks session
   APIKey k <- R.asks apiKey
   let opts = HTTP.defaults & HTTP.header "Authorization" .~ ["Token " `BS.append` k]
       u' = URI.uriToString id u ""
+  -- liftIO $ print u'
   r <- liftIO $ Session.getWith opts s u'
   return $ r ^. HTTP.responseBody
+
+-- | Download the data referred to by a URI to a file.
+downloadToFile :: FilePath -> URI -> Freesound ()
+downloadToFile path uri = liftIO . BL.writeFile path =<< download uri
 
 -- | Resource URI.
 newtype Resource a = Resource URI deriving (Eq, FromJSON, Show)
@@ -93,19 +102,12 @@ appendQuery q (Resource (URI u)) = Resource $ URI $ u { URI.uriQuery = q' }
            $ HTTP.parseQuery (BS.pack (URI.uriQuery u))
               ++ HTTP.toQuery q
 
--- | Create a query item for the API key.
--- apiKeyQuery :: Freesound HTTP.Query
--- apiKeyQuery = do
---   k <- Freesound $ R.asks apiKey
---   return $ [("api_key", Just k)]
-
--- | Download the resource referred to by a URI.
-getResource :: (FromJSON a) => Resource a -> Freesound a
-getResource (Resource u) = do
-  -- q <- apiKeyQuery
-  -- let Resource u = appendQuery q r
-  liftM (handle . J.eitherDecode) $ getURI u
-  where handle = either (\e -> error $ "Internal error (getResource): JSON decoding failed: " ++ e) id
+-- | Get the resource referred to by a URI.
+get :: (FromJSON a) => Resource a -> Freesound a
+get (Resource u) = do
+  handle . eitherDecode <$> download u
+  -- TODO: Proper error handling
+  where handle = either (\e -> error $ "JSON decoding failed: " ++ e) id
 
 -- | The base URI of the Freesound API.
 baseURI :: Builder.Builder
@@ -120,9 +122,3 @@ resourceURI path query = Resource u
                . mappend baseURI
                . HTTP.encodePath path
                $ query
-
--- | Perform an HTTP request given the method, a URI and an optional body and return the response body as a Conduit source.
--- request :: Monad m => HTTP.Method -> URI -> Maybe (C.Source m BS.ByteString) -> FreesoundT m (C.ResumableSource m BS.ByteString)
--- request method (URI uri) body = do
---   f <- FreesoundT $ R.asks httpRequest
---   lift $ f method uri body

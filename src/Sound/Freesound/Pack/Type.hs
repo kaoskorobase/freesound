@@ -1,78 +1,46 @@
 {-# LANGUAGE CPP, OverloadedStrings #-}
-module Sound.Freesound.Pack.Type where
+module Sound.Freesound.Pack.Type (
+  Pack(..)
+) where
 
-import           Control.Monad (mzero)
 import           Data.Aeson (FromJSON(..), Value(..), (.:))
+import           Data.Aeson.Types (typeMismatch)
 import           Data.Text (Text)
-import           Sound.Freesound.API (Resource, URI)
-import           Sound.Freesound.List (List, Elem(..))
-import qualified Sound.Freesound.Sound as Sound
+import           Sound.Freesound.API (URI)
+import           Sound.Freesound.Time
 
 #if __GLASGOW_HASKELL__ < 710
 import           Control.Applicative
 #endif
 
-class Pack a where
-  -- | The URI for this resource.
-  ref :: a -> Resource ()
-  -- | The URL for this pack’s page on the Freesound website.
-  url :: a -> URI
-  -- | The API URI for the pack’s sound collection.
-  sounds :: a -> Resource (List Sound.Summary)
-  -- | The pack’s name.
-  name :: a -> Text
-  -- | The date when the pack was created.
-  created :: a -> Text
-  -- | The number of times the pack was downloaded.
-  numDownloads :: a -> Integer
+newtype PackId = PackId Integer deriving (Eq, Ord, Show)
 
-data Summary = Summary {
-  pack_ref :: Resource ()             -- ^ The URI for this resource.
-, pack_url :: URI                   -- ^ The URL for this pack’s page on the Freesound website.
-, pack_sounds :: Resource (List Sound.Summary)           -- ^ The API URI for the pack’s sound collection.
-, pack_name :: Text                 -- ^ The pack’s name.
-, pack_created :: Text              -- ^ The date when the pack was created.
-, pack_num_downloads :: Integer     -- ^ The number of times the pack was downloaded.
+instance FromJSON PackId where
+  parseJSON (Number i) = return $ PackId (truncate i)
+  parseJSON v = typeMismatch "PackId" v
+
+data Pack = Pack {
+    id :: PackId        -- ^ The unique identifier of this pack.
+  , url :: URI          -- ^ The URI for this pack on the Freesound website.
+  , description :: Text -- ^ The description the user gave to the pack (if any).
+  , created :: UTCTime  -- ^ The date when the pack was created (e.g. “2014-04-16T20:07:11.145”).
+  , name :: Text        -- ^ The name user gave to the pack.
+  , username :: Text    -- ^ Username of the creator of the pack.
+  , numSounds :: Int    -- ^ The number of sounds in the pack.
+  , sounds :: URI       -- ^ The URI for a list of sounds in the pack. Plain URI in order to break module dependency cycle.
+  , numDownloads :: Int -- ^ The number of times this pack has been downloaded.
 } deriving (Eq, Show)
 
-instance Pack Summary where
-  ref = pack_ref
-  url = pack_url
-  sounds = pack_sounds
-  name = pack_name
-  created = pack_created
-  numDownloads = pack_num_downloads
-
-instance FromJSON Summary where
-  parseJSON (Object o) =
-    Summary
-    <$> o .: "ref"
-    <*> o .: "url"
-    <*> o .: "sounds"
-    <*> o .: "name"
-    <*> o .: "created"
-    <*> o .: "num_downloads"
-  parseJSON _ = mzero
-
-instance Elem Summary where
-  elemsFieldName _ = "packs"
-
-data Detail = Detail {
-  summary :: Summary
-, username :: Text         -- ^ A JSON object with the user’s username, url, and ref.
-} deriving (Eq, Show)
-
-instance Pack Detail where
-  ref = ref . summary
-  url = url . summary
-  sounds = sounds . summary
-  name = name . summary
-  created = created . summary
-  numDownloads = numDownloads . summary
-
-instance FromJSON Detail where
-  parseJSON v@(Object o) =
-    Detail
-    <$> parseJSON v
-    <*> o .: "username"
-  parseJSON _ = mzero
+instance FromJSON Pack where
+  parseJSON (Object v) =
+    Pack
+      <$> v .: "id"
+      <*> v .: "url"
+      <*> v .: "description"
+      <*> (toUTCTime <$> (v .: "created"))
+      <*> v .: "name"
+      <*> v .: "username"
+      <*> v .: "num_sounds"
+      <*> v .: "sounds"
+      <*> v .: "num_downloads"
+  parseJSON v = typeMismatch "Pack" v

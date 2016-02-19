@@ -1,5 +1,5 @@
 name:               freesound
-version:            0.2.0
+version:            0.3.0
 synopsis:           Access the Freesound Project database
 description:        Access the Freesound Project database. The Freesound
                     Project is a collaborative database of Creative Commons
@@ -17,7 +17,7 @@ maintainer:         Stefan Kersten <kaoskorobase@gmail.com>
 stability:          experimental
 homepage:           https://github.com/kaoskorobase/freesound
 bug-reports:        https://github.com/kaoskorobase/freesound/issues
-tested-with:        GHC == 6.10.1, GHC == 6.10.4, GHC == 6.12.1, GHC == 7.10.3
+tested-with:        GHC == 7.8, GHC == 7.10
 build-type:         Simple
 cabal-version:      >= 1.8
 
@@ -31,19 +31,19 @@ source-repository head
 library
   exposed-modules:  Sound.Freesound
                     Sound.Freesound.Bookmark
+                    Sound.Freesound.Comment
                     Sound.Freesound.List
                     Sound.Freesound.Pack
                     Sound.Freesound.Search
-                    Sound.Freesound.Search.Filter
-                    Sound.Freesound.Search.Numerical
-                    Sound.Freesound.Search.Query
                     Sound.Freesound.Sound
                     Sound.Freesound.User
   other-modules:    Sound.Freesound.API
-                    Sound.Freesound.Bookmark.Internal
                     Sound.Freesound.Pack.Type
+                    Sound.Freesound.Search.Filter
+                    Sound.Freesound.Search.Numerical
+                    Sound.Freesound.Search.Query
                     Sound.Freesound.Sound.Type
-                    Sound.Freesound.User.Type
+                    Sound.Freesound.Time
   build-depends:    base >= 3 && < 5
                   , aeson >= 0.6
                   , blaze-builder >= 0.3
@@ -73,7 +73,14 @@ test-suite spec
   hs-source-dirs:   test
   main-is:          Spec.hs
   other-modules:    Sound.Freesound.Test
+                    Sound.Freesound.SearchSpec
+                    Sound.Freesound.SoundSpec
+                    Sound.Freesound.UserSpec
   build-depends:    base == 4.*
+                  , aeson >= 0.6
+                  , bytestring >= 0.9
+                  , containers
                   , data-default
                   , freesound
                   , hspec
+                  , hspec-core

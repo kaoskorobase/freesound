@@ -1,58 +1,72 @@
+{-# LANGUAGE CPP, OverloadedStrings #-}
 module Sound.Freesound.User (
   User(..)
-, Summary
-, Detail
-, sounds
-, packs
-, firstName
-, lastName
-, about
-, homePage
-, signature
-, dateJoined
-, bookmarkCategories
-, getUser
+, Avatar(..)
 , getUserByName
-, getBookmarkCategories
-, getSounds
-, getSounds_
-, getPacks
 ) where
 
-import           Control.Monad (liftM)
-import           Data.Default (def)
+import           Control.Monad (join)
+import           Data.Aeson (FromJSON(..), Value(..), (.:), (.:?))
 import           Data.Text (Text)
-import qualified Data.Text as T
-import           Sound.Freesound.API (Freesound, appendQuery, getResource, resourceURI)
-import qualified Sound.Freesound.Bookmark as Bookmark
-import qualified Sound.Freesound.Bookmark.Internal as Bookmark
-import           Sound.Freesound.Pack (Packs)
-import           Sound.Freesound.Search (Pagination)
-import           Sound.Freesound.Sound (Sounds)
-import           Sound.Freesound.User.Type
+import           Sound.Freesound.API (Freesound, Resource, URI, get, resourceURI)
+import           Sound.Freesound.Bookmark (BookmarkCategory)
+import           Sound.Freesound.List (List)
+import           Sound.Freesound.Pack (Pack)
+import qualified Sound.Freesound.Sound as Sound
+import           Sound.Freesound.Time
 
--- | Get detailed information about a user.
-getUser :: (User a) => a -> Freesound Detail
-getUser = getResource . ref
+#if __GLASGOW_HASKELL__ < 710
+import           Control.Applicative
+#endif
+
+data Avatar = Avatar {
+    small :: URI
+  , medium :: URI
+  , large :: URI
+  } deriving (Eq, Show)
+
+instance FromJSON Avatar where
+  parseJSON (Object v) =
+    Avatar <$> v .: "small"
+           <*> v .: "medium"
+           <*> v .: "large"
+  parseJSON _ = fail "Couldn't parse Avatar"
+
+-- | User of the Freesound database.
+data User = User {
+    url :: URI                              -- ^ The URI for this users' profile on the Freesound website.
+  , username :: Text                        -- ^ The username.
+  , about :: Maybe Text                     -- ^ The 'about' text of users' profile (if indicated).
+  , homepage :: Maybe URI                   -- ^ The URI of users' homepage outside Freesound (if indicated).
+  , avatar :: Maybe Avatar                  -- ^ The user's avatar image (if indicated).
+  , dateJoined :: UTCTime                   -- ^ The date when the user joined Freesound.
+  , numSounds :: Int                        -- ^ The number of sounds uploaded by the user.
+  , sounds :: Resource (List Sound.Summary) -- ^ The API URI for this user’s sound collection.
+  , numPacks :: Int                         -- ^ The number of packs by the user.
+  , packs :: Resource (List Pack)           -- ^ The API URI for this user’s pack collection.
+  , numPosts :: Int                         -- ^ The number of forum posts by the user.
+  , numComments :: Int                      -- ^ The number of comments that user made in other users' sounds.
+  , bookmarkCategories :: Resource (List BookmarkCategory)  -- ^ The URI for a list of bookmark categories by the user.
+} deriving (Eq, Show)
+
+instance FromJSON User where
+  parseJSON (Object v) =
+    User
+    <$> v .: "url"
+    <*> v .: "username"
+    <*> (join <$> (v .:? "about"))
+    <*> (join <$> (v .:? "homepage"))
+    <*> (join <$> (v .:? "avatar"))
+    <*> (toUTCTime <$> (v .: "date_joined"))
+    <*> v .: "num_sounds"
+    <*> v .: "sounds"
+    <*> v .: "num_packs"
+    <*> v .: "packs"
+    <*> v .: "num_posts"
+    <*> v .: "num_comments"
+    <*> v .: "bookmark_categories"
+  parseJSON _ = fail "Couldn't parse User"
 
 -- | Get information about a user by name.
-getUserByName :: Text -> Freesound Detail
-getUserByName t = getResource $ resourceURI [ T.pack "people", t ] []
-
--- | Retrieve a list of a user's bookmark categories.
-getBookmarkCategories :: Detail -> Freesound [Bookmark.Category]
-getBookmarkCategories = liftM Bookmark.categories . getResource . bookmarkCategories
-
--- | Retrieve a user's sounds.
--- This is broken: the response doesn't contain the User.
-getSounds :: Pagination -> Detail -> Freesound Sounds
-getSounds p = getResource . appendQuery p . sounds
-
--- | Retrieve a user's sounds.
-
-getSounds_ :: Detail -> Freesound Sounds
-getSounds_ = getSounds def
-
--- | Retrieve a user's packs.
-getPacks :: Detail -> Freesound Packs
-getPacks = getResource . packs
+getUserByName :: Text -> Freesound User
+getUserByName u = get $ resourceURI [ "users", u ] []
