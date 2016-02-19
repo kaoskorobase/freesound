@@ -3,6 +3,7 @@ module Sound.Freesound.SearchSpec (spec) where
 
 import           Data.Default (def)
 import           Sound.Freesound
+import           Sound.Freesound.Search
 import qualified Sound.Freesound.Sound as Sound
 import           Sound.Freesound.Test
 import           Test.Hspec

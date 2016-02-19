@@ -6,6 +6,7 @@ import           Data.Maybe (fromJust)
 import           Sound.Freesound
 import qualified Sound.Freesound.Comment as Comment
 import qualified Sound.Freesound.Pack as Pack
+import           Sound.Freesound.Search
 import qualified Sound.Freesound.Sound as Sound
 import           Sound.Freesound.Test
 import           Test.Hspec

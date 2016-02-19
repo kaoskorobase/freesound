@@ -8,6 +8,7 @@ import qualified Data.Set as Set
 import           Sound.Freesound
 import qualified Sound.Freesound.Bookmark as Bookmark
 import qualified Sound.Freesound.Pack as Pack
+import           Sound.Freesound.Search
 import qualified Sound.Freesound.Sound as Sound
 import qualified Sound.Freesound.User as User
 import           Sound.Freesound.Test
