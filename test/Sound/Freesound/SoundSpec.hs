@@ -58,7 +58,7 @@ spec = do
     unlessCI $ do
       it "can be downloaded" $ do
         b <- fs $ download . Sound.download =<< nokia_2600_warmup
-        b' <- BL.readFile "test/datat/330864__k0s__nokia-2600-warmup.wav"
+        b' <- BL.readFile "test/data/330864__k0s__nokia-2600-warmup.wav"
         b `shouldBe` b'
   describe "Nokia_2600_Silence.wav" $ do
     it "should have a lovely comment" $ do
